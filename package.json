@@ -1,0 +1,5 @@
+{
+  "name": "flagstatus",
+  "private": true,
+  "workspaces": ["backend", "app"]
+}

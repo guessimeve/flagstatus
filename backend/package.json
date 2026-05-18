@@ -1,0 +1,19 @@
+{
+  "name": "flagstatus-backend",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "fastify": "*",
+    "@fastify/cors": "*",
+    "better-sqlite3": "*",
+    "axios": "*",
+    "fast-xml-parser": "*",
+    "node-cron": "*"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
