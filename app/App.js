@@ -350,7 +350,6 @@ export default function App() {
   const [geoState,    setGeoState]    = useState(null);
   const [pickedState, setPickedState] = useState(null);
   const [updatedAt,   setUpdatedAt]   = useState(null);
-  const [scrollY,     setScrollY]     = useState(0);
 
   const effectiveState = pickedState ?? geoState;
 
@@ -413,18 +412,10 @@ export default function App() {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
   }).toUpperCase();
 
-  const teaseOpacity = Platform.OS === 'web'
-    ? Math.max(0, 1 - scrollY / 180)
-    : 0;
-
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: heroBg }]}>
       <StatusBar barStyle="light-content" />
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        onScroll={e => setScrollY(e.nativeEvent.contentOffset.y)}
-        scrollEventThrottle={16}
-      >
+      <ScrollView showsVerticalScrollIndicator={false}>
 
         {/* ── HERO ── */}
         <View style={[styles.hero, {
@@ -544,25 +535,23 @@ export default function App() {
         </View>
       </ScrollView>
 
-      {/* Fixed bottom tease — fades out as user scrolls, web only */}
-      {teaseOpacity > 0 ? (
+      {/* Fixed bottom blur strip — always visible, web only */}
+      {Platform.OS === 'web' ? (
         <View pointerEvents="none" style={{
-          position: 'fixed', bottom: 0, left: 0, right: 0, height: 200, zIndex: 50,
-          opacity: teaseOpacity,
+          position: 'fixed', bottom: 0, left: 0, right: 0, height: 120, zIndex: 50,
         }}>
           <View pointerEvents="none" style={{
             position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-            backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)',
-            backgroundImage: `linear-gradient(to top, ${heroBg}CC 0%, transparent 65%)`,
-            WebkitMaskImage: 'linear-gradient(to top, black 30%, transparent 100%)',
-            maskImage: 'linear-gradient(to top, black 30%, transparent 100%)',
+            backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)',
+            WebkitMaskImage: 'linear-gradient(to top, black 0%, black 40%, transparent 100%)',
+            maskImage: 'linear-gradient(to top, black 0%, black 40%, transparent 100%)',
           }} />
           <View pointerEvents="none" style={{
             position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
             backgroundImage: GRAIN_URL, backgroundSize: '200px 200px',
-            opacity: 0.08, mixBlendMode: 'screen',
-            WebkitMaskImage: 'linear-gradient(to top, black 30%, transparent 100%)',
-            maskImage: 'linear-gradient(to top, black 30%, transparent 100%)',
+            opacity: 0.13, mixBlendMode: 'screen',
+            WebkitMaskImage: 'linear-gradient(to top, black 0%, black 40%, transparent 100%)',
+            maskImage: 'linear-gradient(to top, black 0%, black 40%, transparent 100%)',
           }} />
         </View>
       ) : null}
