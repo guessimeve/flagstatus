@@ -211,8 +211,9 @@ function ReasonCard({ national, state }) {
 
   const isNational = national?.status === 'half' && national?.reason;
   const issuer     = isNational ? 'Presidential Proclamation' : 'Governor\'s Order';
-  // Use stored URL, or fall back to linking the source domain
-  const linkUrl    = item.url ?? (item.source ? `https://${item.source}` : null);
+  // Use stored URL, force https, or fall back to source domain
+  const rawUrl  = item.url ?? (item.source ? `https://${item.source}` : null);
+  const linkUrl = rawUrl ? rawUrl.replace(/^http:\/\//i, 'https://') : null;
   const linkLabel  = isNational ? 'proclamation' : 'order';
 
   return (
@@ -397,12 +398,11 @@ export default function App() {
 
           {/* Footer */}
           <View style={styles.footer}>
-            <TouchableOpacity onPress={() => Linking.openURL(`mailto:${FEEDBACK_EMAIL}?subject=FlagStatus%20Feedback`)}>
-              <Text style={styles.footerLink}>Feedback or bug report</Text>
-            </TouchableOpacity>
-            <Text style={styles.footerSep}>·</Text>
             <TouchableOpacity onPress={() => Linking.openURL(BMC_URL)}>
-              <Text style={styles.footerLink}>☕ Support this app</Text>
+              <Text style={styles.footerSupport}>☕ Enjoying this project? Buy me a coffee</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => Linking.openURL(`mailto:${FEEDBACK_EMAIL}?subject=Flag%20Status%20Feedback`)}>
+              <Text style={styles.footerFeedback}>Found a bug or have feedback? Let me know →</Text>
             </TouchableOpacity>
           </View>
 
@@ -617,21 +617,22 @@ const styles = StyleSheet.create({
 
   // ── Footer ──
   footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: 'column',
     alignItems: 'center',
-    gap: 10,
+    gap: 12,
     marginTop: 48,
     paddingHorizontal: 24,
   },
-  footerLink: {
+  footerSupport: {
+    fontFamily: SANS,
+    fontSize: 15,
+    fontWeight: '600',
+    color: C.navy,
+  },
+  footerFeedback: {
     fontFamily: SANS,
     fontSize: 12,
     color: C.muted,
-  },
-  footerSep: {
-    fontSize: 12,
-    color: C.rule,
   },
 
   // ── Modal ──
