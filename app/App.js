@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import {
-  StyleSheet, Text, View, ActivityIndicator,
+  StyleSheet, Text, View, TextInput, ActivityIndicator,
   SafeAreaView, ScrollView, StatusBar, Platform,
   TouchableOpacity, Linking, Modal, useWindowDimensions,
 } from 'react-native';
 import FlagPole from './FlagPole';
 
-const API_BASE = Platform.OS === 'web' ? '' : 'http://localhost:3001';
+const API_BASE = (Platform.OS !== 'web' || (typeof __DEV__ !== 'undefined' && __DEV__))
+  ? 'http://localhost:3001'
+  : '';
 const FEEDBACK_EMAIL = 'hello@example.com'; // TODO: replace
 const BMC_URL = 'https://buymeacoffee.com/YOUR_USERNAME'; // TODO: replace
 
@@ -14,24 +16,30 @@ const BMC_URL = 'https://buymeacoffee.com/YOUR_USERNAME'; // TODO: replace
 
 const C = {
   // Hero — full staff (deep navy)
-  heroFull:     '#0D1B2A',
-  heroFullSub:  '#1E3A52',
-  textOnFull:   '#F0EDE6',
-  mutedOnFull:  '#7A9BB5',
-  // Hero — half mast (deep burgundy)
-  heroHalf:     '#1A0608',
-  heroHalfSub:  '#3B1015',
-  textOnHalf:   '#F0E8E6',
-  mutedOnHalf:  '#9B6E72',
+  heroFull:     '#0A1628',
+  heroFullSub:  '#142240',
+  textOnFull:   '#E8E2D2',
+  mutedOnFull:  '#4A6080',
+  accentOnFull: '#6A90B0',
+  ruleOnFull:   'rgba(215, 225, 245, 0.12)',
+  // Hero — half mast (near-black blood)
+  heroHalf:     '#110303',
+  heroHalfSub:  '#1F0606',
+  textOnHalf:   '#EBE0D8',
+  mutedOnHalf:  '#7A5252',
+  accentOnHalf: '#A85050',
+  ruleOnHalf:   'rgba(235, 224, 216, 0.12)',
   // Content area (always light)
-  bg:           '#F7F6F1',
-  ink:          '#111111',
-  muted:        '#777777',
-  rule:         '#D8D5CC',
-  white:        '#FFFFFF',
-  red:          '#B22234',
-  navy:         '#1a1a4e',
-  accent:       '#C8102E',
+  bg:      '#F7F3EA',
+  ink:     '#0E0D0A',
+  muted:   '#68655C',
+  rule:    '#D6D1C4',
+  divider: '#C4BFB0',
+  white:   '#FFFFFF',
+  red:     '#8B1515',
+  crimson: '#A01818',
+  navy:    '#1B2848',
+  forest:  '#2A4528',
 };
 
 // ── US States ────────────────────────────────────────────────────────────────
@@ -66,25 +74,32 @@ const US_STATES = [
 
 // ── Fonts ────────────────────────────────────────────────────────────────────
 
-// Paper texture — slow turbulence for crumpled-paper feel, screen-blended over dark hero
-const PAPER_URL = Platform.OS === 'web'
-  ? `url("data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><filter id="p"><feTurbulence type="fractalNoise" baseFrequency="0.035 0.055" numOctaves="5" seed="8" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter><rect width="400" height="400" filter="url(#p)"/></svg>')}")`
-  : null;
-
 function useWebFonts() {
   useEffect(() => {
     if (Platform.OS !== 'web') return;
-    if (document.getElementById('flagstatus-fonts')) return;
-    const link = document.createElement('link');
-    link.id = 'flagstatus-fonts';
-    link.rel = 'stylesheet';
-    link.href = 'https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap';
-    document.head.appendChild(link);
+    if (!document.getElementById('flagstatus-fonts')) {
+      const link = document.createElement('link');
+      link.id = 'flagstatus-fonts';
+      link.rel = 'stylesheet';
+      link.href = 'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap';
+      document.head.appendChild(link);
+    }
+    if (!document.getElementById('flagstatus-favicon')) {
+      const favicon = document.createElement('link');
+      favicon.id = 'flagstatus-favicon';
+      favicon.rel = 'icon';
+      favicon.href = "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🇺🇸</text></svg>";
+      document.head.appendChild(favicon);
+    }
   }, []);
 }
 
-const SERIF = Platform.OS === 'web' ? '"DM Serif Display", Georgia, serif' : undefined;
-const SANS  = Platform.OS === 'web' ? '"DM Sans", system-ui, sans-serif'  : undefined;
+const SERIF = Platform.OS === 'web' ? '"Cormorant Garamond", Georgia, serif' : undefined;
+const BODY  = Platform.OS === 'web' ? '"Crimson Pro", Georgia, serif'        : undefined;
+
+const GRAIN_URL = Platform.OS === 'web'
+  ? `url("data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><filter id="g"><feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="4" seed="2" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter><rect width="200" height="200" filter="url(#g)"/></svg>')}")`
+  : null;
 
 // ── Statutory dates ──────────────────────────────────────────────────────────
 
@@ -151,16 +166,92 @@ async function getStateCode() {
   } catch { return null; }
 }
 
-// ── State picker modal ───────────────────────────────────────────────────────
+// ── State picker ─────────────────────────────────────────────────────────────
 
 function StatePicker({ value, onChange, textColor, mutedColor }) {
+  const { width } = useWindowDimensions();
   const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState('');
   const stateName = value ? US_STATES.find(s => s.code === value)?.name : null;
+  const isDesktop = Platform.OS === 'web' && width >= 768;
+
+  const filtered = US_STATES
+    .filter(s => s.name.toLowerCase().includes(search.toLowerCase()))
+    .sort((a, b) => {
+      if (!search) return 0;
+      const sl = search.toLowerCase();
+      const aS = a.name.toLowerCase().startsWith(sl);
+      const bS = b.name.toLowerCase().startsWith(sl);
+      return aS === bS ? 0 : aS ? -1 : 1;
+    });
+
+  if (isDesktop) {
+    return (
+      <View style={{ alignItems: 'center', width: '100%' }}>
+        <TouchableOpacity
+          onPress={() => { setOpen(o => !o); setSearch(''); }}
+          style={styles.locationRow}
+        >
+          <Text style={[styles.locationPin, { color: mutedColor }]}>◎</Text>
+          <Text style={[styles.locationName, { color: textColor }]}>
+            {stateName ?? 'Select your state'}
+          </Text>
+          <Text style={[styles.locationChange, { color: mutedColor }]}>
+            {open ? '↑' : '↓'}
+          </Text>
+        </TouchableOpacity>
+
+        {open ? (
+          <View style={styles.dropdownPanel}>
+            <View style={styles.dropdownSearchRow}>
+              <TextInput
+                value={search}
+                onChangeText={setSearch}
+                placeholder="Search states…"
+                placeholderTextColor={C.muted}
+                style={[styles.dropdownSearchInput, { outlineStyle: 'none' }]}
+                autoFocus
+              />
+            </View>
+            <ScrollView style={styles.dropdownList} bounces={false} keyboardShouldPersistTaps="handled">
+              {value ? (
+                <TouchableOpacity
+                  style={styles.dropdownRow}
+                  onPress={() => { onChange(null); setOpen(false); setSearch(''); }}
+                >
+                  <Text style={[styles.dropdownRowText, { color: C.muted, fontStyle: 'italic' }]}>
+                    Use auto-detect
+                  </Text>
+                </TouchableOpacity>
+              ) : null}
+              {filtered.map(s => (
+                <TouchableOpacity
+                  key={s.code}
+                  style={[styles.dropdownRow, s.code === value && styles.dropdownRowActive]}
+                  onPress={() => { onChange(s.code); setOpen(false); setSearch(''); }}
+                >
+                  <Text style={[styles.dropdownRowText, s.code === value && styles.dropdownRowActiveText]}>
+                    {s.name}
+                  </Text>
+                  {s.code === value ? <Text style={{ color: C.navy, fontFamily: BODY }}>✓</Text> : null}
+                </TouchableOpacity>
+              ))}
+              {filtered.length === 0 ? (
+                <View style={styles.dropdownRow}>
+                  <Text style={[styles.dropdownRowText, { color: C.muted }]}>No states found</Text>
+                </View>
+              ) : null}
+            </ScrollView>
+          </View>
+        ) : null}
+      </View>
+    );
+  }
 
   return (
     <>
       <TouchableOpacity onPress={() => setOpen(true)} style={styles.locationRow}>
-        <Text style={styles.locationPin}>📍</Text>
+        <Text style={[styles.locationPin, { color: mutedColor }]}>◎</Text>
         <Text style={[styles.locationName, { color: textColor }]}>
           {stateName ?? 'Select your state'}
         </Text>
@@ -194,7 +285,7 @@ function StatePicker({ value, onChange, textColor, mutedColor }) {
                   <Text style={[styles.modalRowText, s.code === value && styles.modalRowActiveText]}>
                     {s.name}
                   </Text>
-                  {s.code === value ? <Text style={{ color: C.navy }}>✓</Text> : null}
+                  {s.code === value ? <Text style={{ color: C.navy, fontFamily: BODY }}>✓</Text> : null}
                 </TouchableOpacity>
               ))}
             </ScrollView>
@@ -205,7 +296,7 @@ function StatePicker({ value, onChange, textColor, mutedColor }) {
   );
 }
 
-// ── Reason card (shown when at half-mast) ────────────────────────────────────
+// ── Reason card (shown when at half-staff) ────────────────────────────────────
 
 function ReasonCard({ national, state }) {
   const item = national?.status === 'half' && national?.reason ? national
@@ -216,25 +307,33 @@ function ReasonCard({ national, state }) {
 
   const isNational = national?.status === 'half' && national?.reason;
   const issuer     = isNational ? 'Presidential Proclamation' : 'Governor\'s Order';
-  // Use stored URL, force https, or fall back to source domain
   const rawUrl  = item.url ?? (item.source ? `https://${item.source}` : null);
   const linkUrl = rawUrl ? rawUrl.replace(/^http:\/\//i, 'https://') : null;
   const linkLabel  = isNational ? 'proclamation' : 'order';
 
   return (
     <View style={styles.reasonCard}>
-      <Text style={styles.reasonCardEyebrow}>Why the flag is at half-mast</Text>
-      <Text style={styles.reasonCardText}>"{item.reason}"</Text>
-      <View style={styles.reasonCardFooter}>
-        <Text style={styles.reasonCardIssuer}>— {issuer}</Text>
-        {linkUrl ? (
-          <TouchableOpacity onPress={() => Linking.openURL(linkUrl)}>
-            <Text style={styles.reasonCardLink}>Read the full {linkLabel} ↗</Text>
-          </TouchableOpacity>
-        ) : null}
+      <View style={styles.reasonCardRule} />
+      <View style={styles.reasonCardBody}>
+        <Text style={styles.reasonCardEyebrow}>Why the flag is at half-staff</Text>
+        <Text style={styles.reasonCardText}>"{item.reason}"</Text>
+        <View style={styles.reasonCardFooter}>
+          <Text style={styles.reasonCardIssuer}>— {issuer}</Text>
+          {linkUrl ? (
+            <TouchableOpacity onPress={() => Linking.openURL(linkUrl)}>
+              <Text style={styles.reasonCardLink}>Read the full {linkLabel} ↗</Text>
+            </TouchableOpacity>
+          ) : null}
+        </View>
       </View>
     </View>
   );
+}
+
+// ── Divider ──────────────────────────────────────────────────────────────────
+
+function HeroRule({ color }) {
+  return <View style={[styles.heroRule, { backgroundColor: color }]} />;
 }
 
 // ── Main ─────────────────────────────────────────────────────────────────────
@@ -297,43 +396,60 @@ export default function App() {
   const isNatHalf   = flagData?.national?.status === 'half';
   const isStateHalf = flagData?.state?.status === 'half';
 
-  const heroBg     = isHalf ? C.heroHalf    : C.heroFull;
-  const textColor  = isHalf ? C.textOnHalf  : C.textOnFull;
-  const mutedColor = isHalf ? C.mutedOnHalf : C.mutedOnFull;
+  const heroBg      = isHalf ? C.heroHalf    : C.heroFull;
+  const textColor   = isHalf ? C.textOnHalf  : C.textOnFull;
+  const mutedColor  = isHalf ? C.mutedOnHalf : C.mutedOnFull;
+  const ruleColor   = isHalf ? C.ruleOnHalf  : C.ruleOnFull;
 
-  const statusLabel = isHalf ? 'At Half-Mast' : 'Full Staff';
+  const statusLabel = isHalf ? 'At Half-Staff' : 'Full Staff';
   const stateName   = effectiveState ? US_STATES.find(s => s.code === effectiveState)?.name : null;
   const upcoming    = upcomingDates();
   const updatedStr  = updatedAt
     ? updatedAt.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
     : null;
 
+  const dateline = new Date().toLocaleDateString('en-US', {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+  }).toUpperCase();
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: heroBg }]}>
       <StatusBar barStyle="light-content" />
       <ScrollView showsVerticalScrollIndicator={false}>
 
-        {/* ── HERO (full viewport height) ── */}
+        {/* ── HERO ── */}
         <View style={[styles.hero, {
           minHeight: windowHeight,
           backgroundColor: heroBg,
-          paddingVertical: isMd ? 80 : 48,
-          gap: isMd ? 28 : 20,
+          paddingVertical: isMd ? 80 : 52,
+          gap: isMd ? 24 : 18,
         }]}>
-          {/* Subtle vignette (web only) */}
           {Platform.OS === 'web' ? (
-            <View pointerEvents="none" style={[styles.heroOverlay, {
-              backgroundImage: 'radial-gradient(ellipse at 50% 45%, transparent 40%, rgba(0,0,0,0.22) 100%)',
-            }]} />
+            <>
+              <View pointerEvents="none" style={[styles.heroOverlay, {
+                backgroundImage: GRAIN_URL,
+                backgroundSize: '200px 200px',
+                opacity: 0.065,
+                mixBlendMode: 'screen',
+              }]} />
+              <View pointerEvents="none" style={[styles.heroOverlay, {
+                backgroundImage: 'radial-gradient(ellipse at 50% 45%, transparent 35%, rgba(0,0,0,0.25) 100%)',
+              }]} />
+            </>
           ) : null}
 
           <FlagPole isHalf={isHalf} scale={isLg ? 1.35 : isMd ? 1.15 : 1} />
 
-          <Text style={[styles.headline, {
-            color: textColor,
-            fontSize: isLg ? 76 : isMd ? 62 : 52,
-            lineHeight: isLg ? 84 : isMd ? 70 : 58,
-          }]}>{statusLabel}</Text>
+          {/* Headline block */}
+          <View style={[styles.headlineBlock, { width: '100%', paddingHorizontal: 32 }]}>
+            <HeroRule color={ruleColor} />
+            <Text style={[styles.headline, {
+              color: textColor,
+              fontSize: isLg ? 80 : isMd ? 66 : 56,
+              lineHeight: isLg ? 88 : isMd ? 74 : 62,
+            }]}>{statusLabel}</Text>
+            <HeroRule color={ruleColor} />
+          </View>
 
           <StatePicker
             value={effectiveState}
@@ -342,11 +458,10 @@ export default function App() {
             mutedColor={mutedColor}
           />
 
-          {updatedStr ? (
-            <Text style={[styles.updatedAt, { color: mutedColor }]}>as of {updatedStr}</Text>
-          ) : null}
+          <Text style={[styles.datelineText, { color: mutedColor }]}>
+            {dateline}{updatedStr ? `  ·  AS OF ${updatedStr}` : ''}
+          </Text>
 
-          {/* Reason — lives inside the dark hero when at half-mast */}
           {isHalf ? (
             <ReasonCard national={flagData?.national} state={flagData?.state} />
           ) : null}
@@ -354,13 +469,14 @@ export default function App() {
           <Text style={[styles.scrollHint, { color: mutedColor }]}>↓</Text>
         </View>
 
-        {/* ── CONTENT AREA (light background) ── */}
+        {/* ── CONTENT AREA ── */}
         <View style={styles.content}>
         <View style={styles.contentInner}>
 
           {/* Status breakdown */}
-          <View style={styles.section}>
-            <Text style={styles.sectionLabel}>Current status</Text>
+          <View style={[styles.section, styles.statusSection]}>
+            <View style={[styles.statusAccent, { backgroundColor: isHalf ? C.crimson : C.forest }]} />
+            <Text style={styles.sectionLabel}>Current Status</Text>
 
             <View style={[styles.statusRow, { borderTopColor: C.rule }]}>
               <View style={styles.statusLeft}>
@@ -370,8 +486,8 @@ export default function App() {
                   <Text style={styles.statusReason}>{flagData.national.reason}</Text>
                 ) : null}
               </View>
-              <Text style={[styles.statusBadge, { color: isNatHalf ? C.red : C.navy }]}>
-                {isNatHalf ? 'Half-Mast' : 'Full Staff'}
+              <Text style={[styles.statusBadge, { color: isNatHalf ? C.crimson : C.forest }]}>
+                {isNatHalf ? 'Half-Staff' : 'Full Staff'}
               </Text>
             </View>
 
@@ -384,16 +500,16 @@ export default function App() {
                     <Text style={styles.statusReason}>{flagData.state.reason}</Text>
                   ) : null}
                 </View>
-                <Text style={[styles.statusBadge, { color: isStateHalf ? C.red : C.navy }]}>
-                  {isStateHalf ? 'Half-Mast' : 'Full Staff'}
+                <Text style={[styles.statusBadge, { color: isStateHalf ? C.crimson : C.forest }]}>
+                  {isStateHalf ? 'Half-Staff' : 'Full Staff'}
                 </Text>
               </View>
             ) : null}
           </View>
 
           {/* Upcoming dates */}
-          <View style={styles.section}>
-            <Text style={styles.sectionLabel}>Upcoming half-mast dates</Text>
+          <View style={[styles.section, styles.upcomingSection]}>
+            <Text style={[styles.sectionLabel, styles.sectionLabelMuted]}>Upcoming Half-Staff Dates</Text>
             {upcoming.map(item => (
               <View key={item.label} style={[styles.upcomingRow, { borderTopColor: C.rule }]}>
                 <View style={styles.upcomingNum}>
@@ -410,9 +526,7 @@ export default function App() {
 
           {/* Footer */}
           <View style={styles.footer}>
-            <TouchableOpacity onPress={() => Linking.openURL(BMC_URL)}>
-              <Text style={styles.footerSupport}>☕ Enjoying this project? Buy me a coffee</Text>
-            </TouchableOpacity>
+            <View style={[styles.footerRule, { backgroundColor: C.divider }]} />
             <TouchableOpacity onPress={() => Linking.openURL(`mailto:${FEEDBACK_EMAIL}?subject=Flag%20Status%20Feedback`)}>
               <Text style={styles.footerFeedback}>Found a bug or have feedback? Let me know →</Text>
             </TouchableOpacity>
@@ -435,48 +549,139 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 32,
-    paddingVertical: 48,
-    gap: 20,
+    gap: 18,
   },
   heroOverlay: {
     position: 'absolute',
     top: 0, left: 0, right: 0, bottom: 0,
   },
+
+  // Dateline
+  datelineRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    width: '100%',
+    paddingHorizontal: 0,
+    maxWidth: 640,
+  },
+  datelineLine: {
+    flex: 1,
+    height: 1,
+  },
+  datelineText: {
+    fontFamily: BODY,
+    fontSize: 11,
+    fontWeight: '600',
+    letterSpacing: 1.6,
+  },
+
+  // Headline block with horizontal rules
+  headlineBlock: {
+    alignItems: 'center',
+    gap: 16,
+    maxWidth: 700,
+    alignSelf: 'center',
+  },
+  heroRule: {
+    width: '100%',
+    height: 1,
+    opacity: 0.18,
+  },
   headline: {
     fontFamily: SERIF,
-    fontSize: 52,
-    fontWeight: '400',
+    fontWeight: '600',
     textAlign: 'center',
-    lineHeight: 58,
+    letterSpacing: 1,
   },
+
+  // Location
   locationRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    marginTop: 4,
+    gap: 7,
+    marginTop: 2,
   },
   locationPin: {
-    fontSize: 16,
+    fontFamily: BODY,
+    fontSize: 14,
   },
   locationName: {
-    fontFamily: SANS,
-    fontSize: 17,
-    fontWeight: '500',
+    fontFamily: BODY,
+    fontSize: 19,
+    fontWeight: '600',
+    letterSpacing: 0.3,
   },
   locationChange: {
-    fontFamily: SANS,
-    fontSize: 13,
+    fontFamily: BODY,
+    fontSize: 15,
     marginLeft: 2,
   },
   updatedAt: {
-    fontFamily: SANS,
-    fontSize: 12,
+    fontFamily: BODY,
+    fontSize: 13,
+    letterSpacing: 0.3,
   },
   scrollHint: {
-    fontFamily: SANS,
-    fontSize: 20,
+    fontFamily: BODY,
+    fontSize: 18,
     position: 'absolute',
     bottom: 28,
+    opacity: 0.5,
+  },
+
+  // ── Reason card (proclamation blockquote style) ──
+  reasonCard: {
+    marginHorizontal: 24,
+    maxWidth: 560,
+    width: '100%',
+    alignSelf: 'center',
+    flexDirection: 'row',
+    backgroundColor: 'rgba(255, 248, 240, 0.07)',
+    paddingVertical: 22,
+    paddingRight: 24,
+  },
+  reasonCardRule: {
+    width: 2,
+    backgroundColor: '#A85050',
+    marginRight: 20,
+    marginLeft: 0,
+    borderRadius: 1,
+    opacity: 0.8,
+  },
+  reasonCardBody: {
+    flex: 1,
+    gap: 10,
+  },
+  reasonCardEyebrow: {
+    fontFamily: BODY,
+    fontSize: 11,
+    fontWeight: '600',
+    letterSpacing: 1.6,
+    textTransform: 'uppercase',
+    color: '#C07070',
+  },
+  reasonCardText: {
+    fontFamily: SERIF,
+    fontSize: 22,
+    fontStyle: 'italic',
+    lineHeight: 33,
+    color: '#EDE0D8',
+  },
+  reasonCardFooter: {
+    gap: 6,
+    marginTop: 2,
+  },
+  reasonCardIssuer: {
+    fontFamily: BODY,
+    fontSize: 15,
+    color: '#9B8A86',
+  },
+  reasonCardLink: {
+    fontFamily: BODY,
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#C07070',
   },
 
   // ── Content area ──
@@ -490,103 +695,74 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
 
-  // ── Reason card (article snippet, inside dark hero) ──
-  reasonCard: {
-    marginHorizontal: 24,
-    maxWidth: 560,
-    width: '100%',
-    alignSelf: 'center',
-    backgroundColor: '#F5F0E8',
-    borderRadius: 10,
-    paddingHorizontal: 20,
-    paddingVertical: 18,
-    gap: 10,
-    // Shadow so it lifts off the dark background
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  reasonCardEyebrow: {
-    fontFamily: SANS,
-    fontSize: 10,
-    fontWeight: '700',
-    letterSpacing: 1.4,
-    textTransform: 'uppercase',
-    color: C.red,
-  },
-  reasonCardText: {
-    fontFamily: SERIF,
-    fontSize: 18,
-    fontStyle: 'italic',
-    lineHeight: 27,
-    color: '#1a1a1a',
-  },
-  reasonCardFooter: {
-    gap: 6,
-    marginTop: 2,
-  },
-  reasonCardIssuer: {
-    fontFamily: SANS,
-    fontSize: 12,
-    color: '#666',
-  },
-  reasonCardLink: {
-    fontFamily: SANS,
-    fontSize: 13,
-    fontWeight: '600',
-    color: C.navy,
-  },
-
   // ── Sections ──
   section: {
-    marginHorizontal: 24,
+    marginHorizontal: 28,
+    marginTop: 40,
+  },
+  statusSection: {
     marginTop: 36,
   },
+  statusAccent: {
+    width: 28,
+    height: 3,
+    borderRadius: 2,
+    marginBottom: 12,
+  },
+  upcomingSection: {
+    marginTop: 32,
+    opacity: 0.82,
+  },
   sectionLabel: {
-    fontFamily: SANS,
-    fontSize: 10,
+    fontFamily: BODY,
+    fontSize: 11,
     fontWeight: '600',
-    letterSpacing: 1.4,
+    letterSpacing: 1.8,
     textTransform: 'uppercase',
     color: C.muted,
-    marginBottom: 4,
+    marginBottom: 6,
+  },
+  sectionLabelMuted: {
+    fontSize: 10,
+    letterSpacing: 1.6,
+    opacity: 0.8,
   },
 
   // ── Status rows ──
   statusRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    paddingVertical: 18,
+    paddingVertical: 20,
     borderTopWidth: 1,
   },
   statusLeft: { flex: 1 },
   statusScope: {
-    fontFamily: SANS,
-    fontSize: 16,
+    fontFamily: BODY,
+    fontSize: 19,
     fontWeight: '600',
     color: C.ink,
+    letterSpacing: 0.2,
   },
   statusSub: {
-    fontFamily: SANS,
-    fontSize: 12,
+    fontFamily: BODY,
+    fontSize: 15,
     color: C.muted,
     marginTop: 2,
   },
   statusReason: {
-    fontFamily: SANS,
-    fontSize: 13,
-    color: C.ink,
-    marginTop: 6,
+    fontFamily: SERIF,
+    fontSize: 17,
     fontStyle: 'italic',
-    lineHeight: 18,
-    opacity: 0.7,
+    color: C.ink,
+    marginTop: 8,
+    lineHeight: 24,
+    opacity: 0.65,
   },
   statusBadge: {
-    fontFamily: SANS,
-    fontSize: 13,
+    fontFamily: BODY,
+    fontSize: 16,
     fontWeight: '600',
+    letterSpacing: 0.3,
     marginLeft: 16,
     marginTop: 3,
   },
@@ -595,60 +771,118 @@ const styles = StyleSheet.create({
   upcomingRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 16,
+    paddingVertical: 18,
     borderTopWidth: 1,
   },
   upcomingNum: {
-    width: 52,
+    width: 64,
     alignItems: 'flex-end',
-    marginRight: 20,
+    marginRight: 24,
   },
   upcomingDays: {
     fontFamily: SERIF,
-    fontSize: 28,
+    fontSize: 36,
+    fontWeight: '400',
     color: C.ink,
-    lineHeight: 30,
+    lineHeight: 38,
   },
   upcomingDaysLabel: {
-    fontFamily: SANS,
-    fontSize: 9,
+    fontFamily: BODY,
+    fontSize: 10,
     fontWeight: '600',
     textTransform: 'uppercase',
-    letterSpacing: 0.8,
+    letterSpacing: 1.2,
     color: C.muted,
+    marginTop: 1,
   },
   upcomingInfo: { flex: 1 },
   upcomingName: {
-    fontFamily: SANS,
-    fontSize: 15,
-    fontWeight: '500',
+    fontFamily: BODY,
+    fontSize: 16,
+    fontWeight: '600',
     color: C.ink,
+    letterSpacing: 0.2,
   },
   upcomingDate: {
-    fontFamily: SANS,
-    fontSize: 12,
+    fontFamily: BODY,
+    fontSize: 13,
     color: C.muted,
-    marginTop: 2,
+    marginTop: 3,
   },
 
   // ── Footer ──
   footer: {
     flexDirection: 'column',
     alignItems: 'center',
-    gap: 12,
-    marginTop: 48,
-    paddingHorizontal: 24,
+    gap: 14,
+    marginTop: 52,
+    paddingHorizontal: 28,
+  },
+  footerRule: {
+    width: 40,
+    height: 1,
+    marginBottom: 4,
   },
   footerSupport: {
-    fontFamily: SANS,
-    fontSize: 15,
+    fontFamily: BODY,
+    fontSize: 16,
     fontWeight: '600',
     color: C.navy,
   },
   footerFeedback: {
-    fontFamily: SANS,
-    fontSize: 12,
+    fontFamily: BODY,
+    fontSize: 15,
     color: C.muted,
+  },
+
+  // ── Desktop dropdown ──
+  dropdownPanel: {
+    backgroundColor: C.white,
+    borderRadius: 10,
+    marginTop: 10,
+    width: 280,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.13,
+    shadowRadius: 24,
+    elevation: 10,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: C.rule,
+  },
+  dropdownSearchRow: {
+    borderBottomWidth: 1,
+    borderBottomColor: C.rule,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+  },
+  dropdownSearchInput: {
+    fontFamily: BODY,
+    fontSize: 16,
+    color: C.ink,
+    height: 30,
+  },
+  dropdownList: {
+    maxHeight: 260,
+  },
+  dropdownRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0EFF0',
+  },
+  dropdownRowActive: { backgroundColor: '#F0F0F8' },
+  dropdownRowText: {
+    fontFamily: BODY,
+    fontSize: 16,
+    color: C.ink,
+  },
+  dropdownRowActiveText: {
+    color: C.navy,
+    fontWeight: '600',
   },
 
   // ── Modal ──
@@ -680,14 +914,14 @@ const styles = StyleSheet.create({
     borderBottomColor: C.rule,
   },
   modalTitle: {
-    fontFamily: SANS,
-    fontSize: 15,
+    fontFamily: BODY,
+    fontSize: 16,
     fontWeight: '600',
     color: C.ink,
   },
   modalDone: {
-    fontFamily: SANS,
-    fontSize: 15,
+    fontFamily: BODY,
+    fontSize: 16,
     fontWeight: '600',
     color: C.navy,
   },
@@ -700,10 +934,10 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#EFEFEF',
   },
-  modalRowActive: { backgroundColor: '#F0F0F8' },
+  modalRowActive: { backgroundColor: '#F0F0F4' },
   modalRowText: {
-    fontFamily: SANS,
-    fontSize: 15,
+    fontFamily: BODY,
+    fontSize: 16,
     color: C.ink,
   },
   modalRowActiveText: {
@@ -712,6 +946,6 @@ const styles = StyleSheet.create({
   },
 
   // ── Loading / error ──
-  errorTitle:  { fontFamily: SERIF, fontSize: 22, textAlign: 'center', marginBottom: 8 },
-  errorDetail: { fontFamily: SANS, fontSize: 13, textAlign: 'center', paddingHorizontal: 32 },
+  errorTitle:  { fontFamily: SERIF, fontSize: 24, textAlign: 'center', marginBottom: 8 },
+  errorDetail: { fontFamily: BODY,  fontSize: 14, textAlign: 'center', paddingHorizontal: 32 },
 });

@@ -6,10 +6,10 @@ import Svg, {
 } from 'react-native-svg';
 
 const W = 180;
-const H = 320;
+const H = 250;
 const POLE_X = 41;
 const POLE_TOP = 22;
-const POLE_H = 274;
+const POLE_H = 205;
 const FLAG_W = 114;
 const FLAG_H = 70;
 const FLAG_FULL_Y = POLE_TOP + 4;
@@ -43,22 +43,22 @@ export default function FlagPole({ isHalf = false, scale = 1 }) {
       <Svg width={W * scale} height={H * scale} viewBox={`0 0 ${W} ${H}`} style={{ position: 'absolute' }}>
         <Defs>
           <LinearGradient id="pole" x1="0" y1="0" x2="1" y2="0">
-            <Stop offset="0%"   stopColor="#888"/>
-            <Stop offset="35%"  stopColor="#e8e8e8"/>
-            <Stop offset="65%"  stopColor="#d0d0d0"/>
-            <Stop offset="100%" stopColor="#888"/>
+            <Stop offset="0%"   stopColor="#3E4E60"/>
+            <Stop offset="35%"  stopColor="#6E8096"/>
+            <Stop offset="65%"  stopColor="#5E7085"/>
+            <Stop offset="100%" stopColor="#3E4E60"/>
           </LinearGradient>
         </Defs>
-        <Rect x={POLE_X} y={POLE_TOP} width={6} height={POLE_H} rx={3} fill="url(#pole)"/>
-        <Ellipse cx={POLE_X + 3} cy={POLE_TOP}     rx={6} ry={4}   fill="#d0d0d0"/>
-        <Ellipse cx={POLE_X + 3} cy={POLE_TOP - 2} rx={5} ry={3.5} fill="#e8e8e8"/>
+        <Rect x={POLE_X} y={POLE_TOP} width={6} height={POLE_H} rx={2} fill="url(#pole)"/>
+        <Ellipse cx={POLE_X + 3} cy={POLE_TOP}     rx={5} ry={3.5} fill="#5E7085"/>
+        <Ellipse cx={POLE_X + 3} cy={POLE_TOP - 1} rx={4} ry={3}   fill="#7A8FA0"/>
         <Line
           x1={POLE_X + 3} y1={POLE_TOP + 4}
           x2={POLE_X + 3} y2={POLE_TOP + POLE_H - 4}
-          stroke="#bbb" strokeWidth={1} strokeDasharray="4,3" opacity={0.5}
+          stroke="#5E7085" strokeWidth={1} strokeDasharray="4,3" opacity={0.35}
         />
-        <Rect x={POLE_X - 7}  y={POLE_TOP + POLE_H}     width={20} height={5} rx={2} fill="url(#pole)"/>
-        <Rect x={POLE_X - 11} y={POLE_TOP + POLE_H + 5} width={28} height={4} rx={2} fill="#bbb"/>
+        <Rect x={POLE_X - 6}  y={POLE_TOP + POLE_H}     width={18} height={4} rx={1} fill="url(#pole)"/>
+        <Rect x={POLE_X - 9}  y={POLE_TOP + POLE_H + 4} width={24} height={4} rx={1} fill="#3A4855"/>
       </Svg>
 
       {/* Animated flag */}
