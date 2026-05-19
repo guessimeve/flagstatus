@@ -547,18 +547,22 @@ export default function App() {
       {/* Fixed bottom tease — fades out as user scrolls, web only */}
       {teaseOpacity > 0 ? (
         <View pointerEvents="none" style={{
-          position: 'fixed', bottom: 0, left: 0, right: 0, height: 180, zIndex: 50,
+          position: 'fixed', bottom: 0, left: 0, right: 0, height: 200, zIndex: 50,
           opacity: teaseOpacity,
         }}>
           <View pointerEvents="none" style={{
             position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
             backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)',
-            backgroundImage: `linear-gradient(to bottom, transparent 0%, ${heroBg}DD 100%)`,
+            backgroundImage: `linear-gradient(to top, ${heroBg}CC 0%, transparent 65%)`,
+            WebkitMaskImage: 'linear-gradient(to top, black 30%, transparent 100%)',
+            maskImage: 'linear-gradient(to top, black 30%, transparent 100%)',
           }} />
           <View pointerEvents="none" style={{
             position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
             backgroundImage: GRAIN_URL, backgroundSize: '200px 200px',
             opacity: 0.08, mixBlendMode: 'screen',
+            WebkitMaskImage: 'linear-gradient(to top, black 30%, transparent 100%)',
+            maskImage: 'linear-gradient(to top, black 30%, transparent 100%)',
           }} />
         </View>
       ) : null}
