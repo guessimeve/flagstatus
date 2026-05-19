@@ -350,6 +350,7 @@ export default function App() {
   const [geoState,    setGeoState]    = useState(null);
   const [pickedState, setPickedState] = useState(null);
   const [updatedAt,   setUpdatedAt]   = useState(null);
+  const [scrollY,     setScrollY]     = useState(0);
 
   const effectiveState = pickedState ?? geoState;
 
@@ -412,10 +413,18 @@ export default function App() {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
   }).toUpperCase();
 
+  const teaseOpacity = Platform.OS === 'web'
+    ? Math.max(0, 1 - scrollY / 180)
+    : 0;
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: heroBg }]}>
       <StatusBar barStyle="light-content" />
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        onScroll={e => setScrollY(e.nativeEvent.contentOffset.y)}
+        scrollEventThrottle={16}
+      >
 
         {/* ── HERO ── */}
         <View style={[styles.hero, {
@@ -469,20 +478,7 @@ export default function App() {
         </View>
 
         {/* ── CONTENT AREA ── */}
-        <View style={[styles.content, { position: 'relative' }]}>{Platform.OS === 'web' ? (
-            <>
-              <View pointerEvents="none" style={{
-                position: 'absolute', top: 0, left: 0, right: 0, height: 160, zIndex: 10,
-                backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
-                backgroundImage: `linear-gradient(to bottom, ${heroBg}EE 0%, ${heroBg}99 50%, transparent 100%)`,
-              }} />
-              <View pointerEvents="none" style={{
-                position: 'absolute', top: 0, left: 0, right: 0, height: 160, zIndex: 11,
-                backgroundImage: GRAIN_URL, backgroundSize: '200px 200px',
-                opacity: 0.09, mixBlendMode: 'screen',
-              }} />
-            </>
-          ) : null}
+        <View style={styles.content}>
         <View style={styles.contentInner}>
 
           {/* Status breakdown */}
@@ -547,6 +543,25 @@ export default function App() {
         </View>
         </View>
       </ScrollView>
+
+      {/* Fixed bottom tease — fades out as user scrolls, web only */}
+      {teaseOpacity > 0 ? (
+        <View pointerEvents="none" style={{
+          position: 'fixed', bottom: 0, left: 0, right: 0, height: 180, zIndex: 50,
+          opacity: teaseOpacity,
+        }}>
+          <View pointerEvents="none" style={{
+            position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+            backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)',
+            backgroundImage: `linear-gradient(to bottom, transparent 0%, ${heroBg}DD 100%)`,
+          }} />
+          <View pointerEvents="none" style={{
+            position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+            backgroundImage: GRAIN_URL, backgroundSize: '200px 200px',
+            opacity: 0.08, mixBlendMode: 'screen',
+          }} />
+        </View>
+      ) : null}
     </SafeAreaView>
   );
 }
