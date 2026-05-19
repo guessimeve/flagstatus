@@ -454,6 +454,9 @@ const styles = StyleSheet.create({
   content: {
     backgroundColor: C.bg,
     paddingBottom: 60,
+    width: '100%',
+    maxWidth: 700,
+    alignSelf: 'center',
   },
 
   // ── Reason card (article snippet, inside dark hero) ──
