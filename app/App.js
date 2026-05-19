@@ -66,9 +66,9 @@ const US_STATES = [
 
 // ── Fonts ────────────────────────────────────────────────────────────────────
 
-// Grain texture data URL (computed once — RN Web supports backgroundImage inline)
-const GRAIN_URL = Platform.OS === 'web'
-  ? `url("data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.72" numOctaves="4" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter><rect width="200" height="200" filter="url(#n)"/></svg>')}")`
+// Paper texture — slow turbulence for crumpled-paper feel, screen-blended over dark hero
+const PAPER_URL = Platform.OS === 'web'
+  ? `url("data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><filter id="p"><feTurbulence type="fractalNoise" baseFrequency="0.035 0.055" numOctaves="5" seed="8" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter><rect width="400" height="400" filter="url(#p)"/></svg>')}")`
   : null;
 
 function useWebFonts() {
@@ -320,16 +320,16 @@ export default function App() {
           paddingVertical: isMd ? 80 : 48,
           gap: isMd ? 28 : 20,
         }]}>
-          {/* Film grain + vignette overlays (web only — RN Web passes backgroundImage through) */}
+          {/* Paper texture + subtle vignette (web only) */}
           {Platform.OS === 'web' ? <>
             <View pointerEvents="none" style={[styles.heroOverlay, {
-              backgroundImage: GRAIN_URL,
-              backgroundSize: '200px 200px',
-              opacity: 0.09,
-              mixBlendMode: 'overlay',
+              backgroundImage: PAPER_URL,
+              backgroundSize: '400px 400px',
+              opacity: 0.08,
+              mixBlendMode: 'screen',
             }]} />
             <View pointerEvents="none" style={[styles.heroOverlay, {
-              backgroundImage: 'radial-gradient(ellipse at 50% 40%, transparent 30%, rgba(0,0,0,0.5) 100%)',
+              backgroundImage: 'radial-gradient(ellipse at 50% 45%, transparent 40%, rgba(0,0,0,0.22) 100%)',
             }]} />
           </> : null}
 
