@@ -320,18 +320,12 @@ export default function App() {
           paddingVertical: isMd ? 80 : 48,
           gap: isMd ? 28 : 20,
         }]}>
-          {/* Paper texture + subtle vignette (web only) */}
-          {Platform.OS === 'web' ? <>
-            <View pointerEvents="none" style={[styles.heroOverlay, {
-              backgroundImage: PAPER_URL,
-              backgroundSize: '400px 400px',
-              opacity: 0.08,
-              mixBlendMode: 'screen',
-            }]} />
+          {/* Subtle vignette (web only) */}
+          {Platform.OS === 'web' ? (
             <View pointerEvents="none" style={[styles.heroOverlay, {
               backgroundImage: 'radial-gradient(ellipse at 50% 45%, transparent 40%, rgba(0,0,0,0.22) 100%)',
             }]} />
-          </> : null}
+          ) : null}
 
           <FlagPole isHalf={isHalf} scale={isLg ? 1.35 : isMd ? 1.15 : 1} />
 
