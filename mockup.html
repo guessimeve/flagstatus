@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Flag Mockup</title>
+  <style>
+    body {
+      font-family: system-ui;
+      background: #f0f0ec;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      gap: 32px;
+    }
+
+    button {
+      padding: 12px 32px;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #3C3B6E;
+      color: white;
+    }
+
+    #status-label {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #3C3B6E;
+    }
+
+    /* The flag group slides up/down via this transform */
+    #flag-group {
+      transition: transform 1.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Subtle wave on the flag body */
+    @keyframes wave {
+      0%   { d: path("M0,0 Q30,-4 60,0 Q90,4 114,0 L114,70 Q90,74 60,70 Q30,66 0,70 Z"); }
+      50%  { d: path("M0,0 Q30,4 60,0 Q90,-4 114,0 L114,70 Q90,66 60,70 Q30,74 0,70 Z"); }
+      100% { d: path("M0,0 Q30,-4 60,0 Q90,4 114,0 L114,70 Q90,74 60,70 Q30,66 0,70 Z"); }
+    }
+  </style>
+</head>
+<body>
+
+  <span id="status-label">Full Staff</span>
+
+  <svg id="flag-svg" width="180" height="320" viewBox="0 0 180 320">
+    <defs>
+      <!-- Pole gradient: metallic silver -->
+      <linearGradient id="pole-grad" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%"   stop-color="#888"/>
+        <stop offset="35%"  stop-color="#e8e8e8"/>
+        <stop offset="65%"  stop-color="#d0d0d0"/>
+        <stop offset="100%" stop-color="#888"/>
+      </linearGradient>
+
+      <!-- Ground shadow: soft radial, elongated horizontally -->
+      <radialGradient id="shadow-grad" cx="50%" cy="50%" rx="50%" ry="50%">
+        <stop offset="0%"   stop-color="#00000022"/>
+        <stop offset="100%" stop-color="#00000000"/>
+      </radialGradient>
+
+      <!-- Stripe clip so flag stays rectangular even when waving -->
+      <clipPath id="flag-clip">
+        <rect x="0" y="0" width="114" height="70"/>
+      </clipPath>
+    </defs>
+
+    <!-- Pole -->
+    <rect x="41" y="22" width="6" height="274" rx="3" fill="url(#pole-grad)"/>
+    <!-- Base: flat footing -->
+    <rect x="34" y="294" width="20" height="5" rx="2" fill="url(#pole-grad)"/>
+    <rect x="30" y="299" width="28" height="4" rx="2" fill="#bbb"/>
+
+    <!-- Finial: silver rounded cap, matches pole -->
+    <ellipse cx="44" cy="22" rx="6" ry="4" fill="#d0d0d0"/>
+    <ellipse cx="44" cy="20" rx="5" ry="3.5" fill="#e8e8e8"/>
+
+    <!-- Flag group: translateY(0)=full staff, translateY(130)=half staff -->
+    <g id="flag-group" transform="translate(0,0)">
+      <!-- Lanyard: dashed line on the pole -->
+      <line x1="44" y1="26" x2="44" y2="296"
+            stroke="#bbb" stroke-width="1" stroke-dasharray="4,3" opacity="0.6"/>
+
+      <!-- Flag body, attached at pole x=47 -->
+      <g transform="translate(47, 26)" clip-path="url(#flag-clip)">
+        <!-- 13 stripes (flag: 114 wide × 70 tall ≈ 1.63:1, close to 1.9:1) -->
+        <rect x="0" y="0"    width="114" height="5.4" fill="#B22234"/>
+        <rect x="0" y="5.4"  width="114" height="5.4" fill="#fff"/>
+        <rect x="0" y="10.8" width="114" height="5.4" fill="#B22234"/>
+        <rect x="0" y="16.2" width="114" height="5.4" fill="#fff"/>
+        <rect x="0" y="21.6" width="114" height="5.4" fill="#B22234"/>
+        <rect x="0" y="27"   width="114" height="5.4" fill="#fff"/>
+        <rect x="0" y="32.4" width="114" height="5.4" fill="#B22234"/>
+        <rect x="0" y="37.8" width="114" height="5.4" fill="#fff"/>
+        <rect x="0" y="43.2" width="114" height="5.4" fill="#B22234"/>
+        <rect x="0" y="48.6" width="114" height="5.4" fill="#fff"/>
+        <rect x="0" y="54"   width="114" height="5.4" fill="#B22234"/>
+        <rect x="0" y="59.4" width="114" height="5.4" fill="#fff"/>
+        <rect x="0" y="64.8" width="114" height="5.4" fill="#B22234"/>
+        <!-- Canton -->
+        <rect x="0" y="0" width="44" height="37.8" fill="#3C3B6E"/>
+        <!-- Stars: 5×4 + 4×5 alternating rows = 50 stars (simplified as dots) -->
+        <g fill="white" font-size="4">
+          <!-- odd rows (6 stars): y = 4, 12, 20, 28, 36 -->
+          <circle cx="4"  cy="4"  r="1.3"/><circle cx="11" cy="4"  r="1.3"/><circle cx="18" cy="4"  r="1.3"/>
+          <circle cx="25" cy="4"  r="1.3"/><circle cx="32" cy="4"  r="1.3"/><circle cx="39" cy="4"  r="1.3"/>
+          <circle cx="4"  cy="13" r="1.3"/><circle cx="11" cy="13" r="1.3"/><circle cx="18" cy="13" r="1.3"/>
+          <circle cx="25" cy="13" r="1.3"/><circle cx="32" cy="13" r="1.3"/><circle cx="39" cy="13" r="1.3"/>
+          <circle cx="4"  cy="22" r="1.3"/><circle cx="11" cy="22" r="1.3"/><circle cx="18" cy="22" r="1.3"/>
+          <circle cx="25" cy="22" r="1.3"/><circle cx="32" cy="22" r="1.3"/><circle cx="39" cy="22" r="1.3"/>
+          <circle cx="4"  cy="31" r="1.3"/><circle cx="11" cy="31" r="1.3"/><circle cx="18" cy="31" r="1.3"/>
+          <circle cx="25" cy="31" r="1.3"/><circle cx="32" cy="31" r="1.3"/><circle cx="39" cy="31" r="1.3"/>
+          <!-- even rows (5 stars): y = 8, 17, 26 -->
+          <circle cx="7.5"  cy="8"  r="1.3"/><circle cx="14.5" cy="8"  r="1.3"/><circle cx="21.5" cy="8"  r="1.3"/>
+          <circle cx="28.5" cy="8"  r="1.3"/><circle cx="35.5" cy="8"  r="1.3"/>
+          <circle cx="7.5"  cy="17" r="1.3"/><circle cx="14.5" cy="17" r="1.3"/><circle cx="21.5" cy="17" r="1.3"/>
+          <circle cx="28.5" cy="17" r="1.3"/><circle cx="35.5" cy="17" r="1.3"/>
+          <circle cx="7.5"  cy="26" r="1.3"/><circle cx="14.5" cy="26" r="1.3"/><circle cx="21.5" cy="26" r="1.3"/>
+          <circle cx="28.5" cy="26" r="1.3"/><circle cx="35.5" cy="26" r="1.3"/>
+          <circle cx="7.5"  cy="35" r="1.3"/><circle cx="14.5" cy="35" r="1.3"/><circle cx="21.5" cy="35" r="1.3"/>
+          <circle cx="28.5" cy="35" r="1.3"/><circle cx="35.5" cy="35" r="1.3"/>
+        </g>
+      </g>
+    </g>
+  </svg>
+
+  <button onclick="toggle()">Toggle Half / Full Staff</button>
+
+  <script>
+    let isHalf = false;
+    function toggle() {
+      isHalf = !isHalf;
+      const group = document.getElementById('flag-group');
+      // Half staff = flag midpoint aligns with pole midpoint
+      // Pole runs y=22 to y=300 (height 278). Midpoint = y=161.
+      // Flag top at full staff = y=26 (inside group). At half = 161-26=135 offset.
+      group.style.transform = isHalf ? 'translateY(135px)' : 'translateY(0px)';
+      document.getElementById('status-label').textContent = isHalf ? 'Half Staff' : 'Full Staff';
+      document.getElementById('status-label').style.color = isHalf ? '#B22234' : '#3C3B6E';
+    }
+  </script>
+
+</body>
+</html>
