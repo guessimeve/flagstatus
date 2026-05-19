@@ -19,9 +19,10 @@ const POLE_MID = POLE_TOP + POLE_H / 2;
 const FLAG_HALF_Y = POLE_MID - FLAG_H / 2;
 const SLIDE_DISTANCE = FLAG_HALF_Y - FLAG_FULL_Y;
 
-export default function FlagPole({ isHalf = false }) {
+export default function FlagPole({ isHalf = false, scale = 1 }) {
   // Always start from the opposite position so there's a visible animation on load
   const slideY = useRef(new Animated.Value(isHalf ? 0 : SLIDE_DISTANCE)).current;
+  const scaledSlideY = Animated.multiply(slideY, scale);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -36,9 +37,9 @@ export default function FlagPole({ isHalf = false }) {
   }, [isHalf]);
 
   return (
-    <View style={{ width: W, height: H }}>
+    <View style={{ width: W * scale, height: H * scale }}>
       {/* Static pole, finial, lanyard, base */}
-      <Svg width={W} height={H} style={{ position: 'absolute' }}>
+      <Svg width={W * scale} height={H * scale} viewBox={`0 0 ${W} ${H}`} style={{ position: 'absolute' }}>
         <Defs>
           <LinearGradient id="pole" x1="0" y1="0" x2="1" y2="0">
             <Stop offset="0%"   stopColor="#888"/>
@@ -71,12 +72,12 @@ export default function FlagPole({ isHalf = false }) {
       <Animated.View
         style={{
           position: 'absolute',
-          left: POLE_X + 6,
-          top: FLAG_FULL_Y,
-          transform: [{ translateY: slideY }],
+          left: (POLE_X + 6) * scale,
+          top: FLAG_FULL_Y * scale,
+          transform: [{ translateY: scaledSlideY }],
         }}
       >
-        <Svg width={FLAG_W} height={FLAG_H}>
+        <Svg width={FLAG_W * scale} height={FLAG_H * scale} viewBox={`0 0 ${FLAG_W} ${FLAG_H}`}>
           <Defs>
             <ClipPath id="flag-clip">
               <Rect x={0} y={0} width={FLAG_W} height={FLAG_H}/>

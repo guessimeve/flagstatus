@@ -235,7 +235,9 @@ function ReasonCard({ national, state }) {
 
 export default function App() {
   useWebFonts();
-  const { height: windowHeight } = useWindowDimensions();
+  const { width: windowWidth, height: windowHeight } = useWindowDimensions();
+  const isMd = windowWidth >= 768;
+  const isLg = windowWidth >= 1024;
 
   const [flagData,    setFlagData]    = useState(null);
   const [loading,     setLoading]     = useState(true);
@@ -306,10 +308,19 @@ export default function App() {
       <ScrollView showsVerticalScrollIndicator={false}>
 
         {/* ── HERO (full viewport height) ── */}
-        <View style={[styles.hero, { minHeight: windowHeight, backgroundColor: heroBg }]}>
-          <FlagPole isHalf={isHalf} />
+        <View style={[styles.hero, {
+          minHeight: windowHeight,
+          backgroundColor: heroBg,
+          paddingVertical: isMd ? 80 : 48,
+          gap: isMd ? 28 : 20,
+        }]}>
+          <FlagPole isHalf={isHalf} scale={isLg ? 1.35 : isMd ? 1.15 : 1} />
 
-          <Text style={[styles.headline, { color: textColor }]}>{statusLabel}</Text>
+          <Text style={[styles.headline, {
+            color: textColor,
+            fontSize: isLg ? 76 : isMd ? 62 : 52,
+            lineHeight: isLg ? 84 : isMd ? 70 : 58,
+          }]}>{statusLabel}</Text>
 
           <StatePicker
             value={effectiveState}
@@ -332,6 +343,7 @@ export default function App() {
 
         {/* ── CONTENT AREA (light background) ── */}
         <View style={styles.content}>
+        <View style={styles.contentInner}>
 
           {/* Status breakdown */}
           <View style={styles.section}>
@@ -395,6 +407,7 @@ export default function App() {
           </View>
 
         </View>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -454,14 +467,19 @@ const styles = StyleSheet.create({
   content: {
     backgroundColor: C.bg,
     paddingBottom: 60,
-    width: '100%',
+  },
+  contentInner: {
     maxWidth: 700,
+    width: '100%',
     alignSelf: 'center',
   },
 
   // ── Reason card (article snippet, inside dark hero) ──
   reasonCard: {
     marginHorizontal: 24,
+    maxWidth: 560,
+    width: '100%',
+    alignSelf: 'center',
     backgroundColor: '#F5F0E8',
     borderRadius: 10,
     paddingHorizontal: 20,
