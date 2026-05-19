@@ -419,7 +419,7 @@ export default function App() {
 
         {/* ── HERO ── */}
         <View style={[styles.hero, {
-          minHeight: windowHeight,
+          minHeight: windowHeight - 110,
           backgroundColor: heroBg,
           paddingVertical: isMd ? 80 : 52,
           gap: isMd ? 24 : 18,
@@ -466,11 +466,23 @@ export default function App() {
             <ReasonCard national={flagData?.national} state={flagData?.state} />
           ) : null}
 
-          <Text style={[styles.scrollHint, { color: mutedColor }]}>↓</Text>
         </View>
 
         {/* ── CONTENT AREA ── */}
-        <View style={styles.content}>
+        <View style={[styles.content, { position: 'relative' }]}>{Platform.OS === 'web' ? (
+            <>
+              <View pointerEvents="none" style={{
+                position: 'absolute', top: 0, left: 0, right: 0, height: 160, zIndex: 10,
+                backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
+                backgroundImage: `linear-gradient(to bottom, ${heroBg}EE 0%, ${heroBg}99 50%, transparent 100%)`,
+              }} />
+              <View pointerEvents="none" style={{
+                position: 'absolute', top: 0, left: 0, right: 0, height: 160, zIndex: 11,
+                backgroundImage: GRAIN_URL, backgroundSize: '200px 200px',
+                opacity: 0.09, mixBlendMode: 'screen',
+              }} />
+            </>
+          ) : null}
         <View style={styles.contentInner}>
 
           {/* Status breakdown */}
