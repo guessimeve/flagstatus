@@ -66,6 +66,11 @@ const US_STATES = [
 
 // ── Fonts ────────────────────────────────────────────────────────────────────
 
+// Grain texture data URL (computed once — RN Web supports backgroundImage inline)
+const GRAIN_URL = Platform.OS === 'web'
+  ? `url("data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.72" numOctaves="4" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter><rect width="200" height="200" filter="url(#n)"/></svg>')}")`
+  : null;
+
 function useWebFonts() {
   useEffect(() => {
     if (Platform.OS !== 'web') return;
@@ -315,6 +320,19 @@ export default function App() {
           paddingVertical: isMd ? 80 : 48,
           gap: isMd ? 28 : 20,
         }]}>
+          {/* Film grain + vignette overlays (web only — RN Web passes backgroundImage through) */}
+          {Platform.OS === 'web' ? <>
+            <View pointerEvents="none" style={[styles.heroOverlay, {
+              backgroundImage: GRAIN_URL,
+              backgroundSize: '200px 200px',
+              opacity: 0.09,
+              mixBlendMode: 'overlay',
+            }]} />
+            <View pointerEvents="none" style={[styles.heroOverlay, {
+              backgroundImage: 'radial-gradient(ellipse at 50% 40%, transparent 30%, rgba(0,0,0,0.5) 100%)',
+            }]} />
+          </> : null}
+
           <FlagPole isHalf={isHalf} scale={isLg ? 1.35 : isMd ? 1.15 : 1} />
 
           <Text style={[styles.headline, {
@@ -425,6 +443,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
     paddingVertical: 48,
     gap: 20,
+  },
+  heroOverlay: {
+    position: 'absolute',
+    top: 0, left: 0, right: 0, bottom: 0,
   },
   headline: {
     fontFamily: SERIF,

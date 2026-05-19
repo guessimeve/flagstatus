@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Animated, Easing, View } from 'react-native';
+import { Animated, Easing, Platform, View } from 'react-native';
 import Svg, {
   Rect, Circle, Ellipse, Line, G, Defs,
   LinearGradient, Stop, ClipPath,
@@ -20,7 +20,7 @@ const FLAG_HALF_Y = POLE_MID - FLAG_H / 2;
 const SLIDE_DISTANCE = FLAG_HALF_Y - FLAG_FULL_Y;
 
 export default function FlagPole({ isHalf = false, scale = 1 }) {
-  // Always start from the opposite position so there's a visible animation on load
+  // Slide animation (up/down position)
   const slideY = useRef(new Animated.Value(isHalf ? 0 : SLIDE_DISTANCE)).current;
   const scaledSlideY = Animated.multiply(slideY, scale);
 
@@ -35,6 +35,27 @@ export default function FlagPole({ isHalf = false, scale = 1 }) {
     }, 300);
     return () => clearTimeout(timer);
   }, [isHalf]);
+
+  // Wave animation (web only — pivots from left edge via translateX sandwich)
+  const waveAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(waveAnim, { toValue: 1,     duration: 1700, easing: Easing.inOut(Easing.sin), useNativeDriver: false }),
+        Animated.timing(waveAnim, { toValue: -0.45, duration: 1300, easing: Easing.inOut(Easing.sin), useNativeDriver: false }),
+        Animated.timing(waveAnim, { toValue: 0.2,   duration: 800,  easing: Easing.inOut(Easing.sin), useNativeDriver: false }),
+        Animated.timing(waveAnim, { toValue: 0,     duration: 600,  easing: Easing.inOut(Easing.sin), useNativeDriver: false }),
+      ])
+    );
+    loop.start();
+    return () => loop.stop();
+  }, []);
+
+  const rotateY  = waveAnim.interpolate({ inputRange: [-1, 0, 1], outputRange: ['-5deg', '0deg', '10deg'] });
+  const waveScaleX = waveAnim.interpolate({ inputRange: [-1, 0, 1], outputRange: [0.99, 1, 0.96] });
+  const halfFlagW = (FLAG_W * scale) / 2;
 
   return (
     <View style={{ width: W * scale, height: H * scale }}>
@@ -77,6 +98,16 @@ export default function FlagPole({ isHalf = false, scale = 1 }) {
           transform: [{ translateY: scaledSlideY }],
         }}
       >
+        {/* Wave animation — translateX sandwich pivots rotation from left edge */}
+        <Animated.View style={Platform.OS === 'web' ? {
+          transform: [
+            { translateX: -halfFlagW },
+            { perspective: 320 },
+            { rotateY },
+            { scaleX: waveScaleX },
+            { translateX: halfFlagW },
+          ],
+        } : {}}>
         <Svg width={FLAG_W * scale} height={FLAG_H * scale} viewBox={`0 0 ${FLAG_W} ${FLAG_H}`}>
           <Defs>
             <ClipPath id="flag-clip">
@@ -115,6 +146,7 @@ export default function FlagPole({ isHalf = false, scale = 1 }) {
             </G>
           </G>
         </Svg>
+        </Animated.View>
       </Animated.View>
     </View>
   );
