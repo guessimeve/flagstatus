@@ -60,10 +60,11 @@ async function scrapeWhiteHouse() {
     const existing = db.prepare('SELECT id FROM proclamations WHERE id = ?').get(id);
     if (existing) continue;
 
+    const url = item.link ?? (typeof item.guid === 'string' ? item.guid : null);
     db.prepare(`
-      INSERT INTO proclamations (id, scope, state, status, reason, since, expires, source, fetched_at)
-      VALUES (?, 'national', NULL, ?, ?, ?, NULL, 'whitehouse.gov', ?)
-    `).run(id, status, reason, since, new Date().toISOString());
+      INSERT INTO proclamations (id, scope, state, status, reason, since, expires, source, url, fetched_at)
+      VALUES (?, 'national', NULL, ?, ?, ?, NULL, 'whitehouse.gov', ?, ?)
+    `).run(id, status, reason, since, url, new Date().toISOString());
 
     saved++;
   }
@@ -88,10 +89,11 @@ async function scrapeFederalRegister() {
     const existing = db.prepare('SELECT id FROM proclamations WHERE id = ?').get(id);
     if (existing) continue;
 
+    const url = item.link ?? (typeof item.guid === 'string' ? item.guid : null);
     db.prepare(`
-      INSERT INTO proclamations (id, scope, state, status, reason, since, expires, source, fetched_at)
-      VALUES (?, 'national', NULL, ?, ?, ?, NULL, 'federalregister.gov', ?)
-    `).run(id, status, reason, since, new Date().toISOString());
+      INSERT INTO proclamations (id, scope, state, status, reason, since, expires, source, url, fetched_at)
+      VALUES (?, 'national', NULL, ?, ?, ?, NULL, 'federalregister.gov', ?, ?)
+    `).run(id, status, reason, since, url, new Date().toISOString());
 
     saved++;
   }
@@ -116,10 +118,11 @@ async function scrapeState({ state, feed, name }) {
     const existing = db.prepare('SELECT id FROM proclamations WHERE id = ?').get(id);
     if (existing) continue;
 
+    const url = item.link ?? (typeof item.guid === 'string' ? item.guid : null);
     db.prepare(`
-      INSERT INTO proclamations (id, scope, state, status, reason, since, expires, source, fetched_at)
-      VALUES (?, 'state', ?, ?, ?, ?, NULL, ?, ?)
-    `).run(id, state, status, reason, since, `governor.${name.toLowerCase().replace(/ /g,'-')}.gov`, new Date().toISOString());
+      INSERT INTO proclamations (id, scope, state, status, reason, since, expires, source, url, fetched_at)
+      VALUES (?, 'state', ?, ?, ?, ?, NULL, ?, ?, ?)
+    `).run(id, state, status, reason, since, `governor.${name.toLowerCase().replace(/ /g,'-')}.gov`, url, new Date().toISOString());
 
     saved++;
   }
@@ -143,10 +146,10 @@ async function scrapeCtPage() {
 
   // Upsert a single record that always reflects current CT page state
   db.prepare(`
-    INSERT INTO proclamations (id, scope, state, status, reason, since, expires, source, fetched_at)
-    VALUES ('ct:current', 'state', 'CT', ?, ?, ?, NULL, 'portal.ct.gov', ?)
+    INSERT INTO proclamations (id, scope, state, status, reason, since, expires, source, url, fetched_at)
+    VALUES ('ct:current', 'state', 'CT', ?, ?, ?, NULL, 'portal.ct.gov', 'https://portal.ct.gov/governor/flag-status', ?)
     ON CONFLICT(id) DO UPDATE SET status=excluded.status, reason=excluded.reason,
-      since=excluded.since, fetched_at=excluded.fetched_at
+      since=excluded.since, url=excluded.url, fetched_at=excluded.fetched_at
   `).run(status, reason, since, new Date().toISOString());
 
   return status;

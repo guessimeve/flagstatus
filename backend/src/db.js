@@ -20,8 +20,14 @@ db.exec(`
     since      TEXT,
     expires    TEXT,
     source     TEXT,
+    url        TEXT,
     fetched_at TEXT
   )
 `);
+
+// Add url column if it doesn't exist (migration for existing DBs)
+try {
+  db.exec(`ALTER TABLE proclamations ADD COLUMN url TEXT`);
+} catch {}  // column already exists — safe to ignore
 
 export default db;

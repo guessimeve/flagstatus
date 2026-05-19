@@ -1,5 +1,10 @@
 {
   "name": "flagstatus",
   "private": true,
-  "workspaces": ["backend", "app"]
+  "workspaces": ["backend", "app"],
+  "scripts": {
+    "build": "npm run build:web --workspace=app",
+    "start": "npm start --workspace=backend",
+    "dev": "npm run dev --workspace=backend"
+  }
 }

@@ -8,6 +8,7 @@
   "dependencies": {
     "fastify": "*",
     "@fastify/cors": "*",
+    "@fastify/static": "*",
     "better-sqlite3": "*",
     "axios": "*",
     "fast-xml-parser": "*",

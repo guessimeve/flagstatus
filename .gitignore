@@ -5,3 +5,4 @@ build
 .expo
 ios
 android
+backend/public
