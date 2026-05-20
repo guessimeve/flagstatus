@@ -23,8 +23,8 @@ const prefersReducedMotion = () =>
 
 const C = {
   // Hero — full staff (deep navy)
-  heroFull:     '#0A1628',
-  textOnFull:   '#E8E2D2',
+  heroFull:     '#112240',
+  textOnFull:   '#EAE7DF',
   mutedOnFull:  '#4A6080',
   accentOnFull: '#6A90B0',
   ruleOnFull:   'rgba(215, 225, 245, 0.12)',
@@ -181,6 +181,8 @@ async function getStateCode() {
 }
 
 // ── State picker ─────────────────────────────────────────────────────────────
+
+const AnimatedSafeAreaView = Animated.createAnimatedComponent(SafeAreaView);
 
 function StatePicker({ value, onChange, textColor, mutedColor, geoLoading }) {
   const { width } = useWindowDimensions();
@@ -422,8 +424,9 @@ export default function App() {
   };
 
   // ── Headline animation — matches FlagPole exactly (300ms delay + 1400ms inOut cubic) ──
-  const headlineAnim = useRef(new Animated.Value(1)).current;
-  const blurOpacity  = useRef(new Animated.Value(1)).current;
+  const headlineAnim   = useRef(new Animated.Value(1)).current;
+  const heroColorAnim  = useRef(new Animated.Value(0)).current;
+  const blurOpacity    = useRef(new Animated.Value(1)).current;
   const scrollRef    = useRef(null);
 
   // Attach native DOM scroll listener (fires reliably both directions on web)
@@ -453,6 +456,21 @@ export default function App() {
     }, 300);
     return () => clearTimeout(t);
   }, [flagData?.effective]);
+
+  // Hero background color cross-fades when status changes
+  useEffect(() => {
+    Animated.timing(heroColorAnim, {
+      toValue: isHalf ? 1 : 0,
+      duration: prefersReducedMotion() ? 0 : 900,
+      easing: Easing.inOut(Easing.cubic),
+      useNativeDriver: false,
+    }).start();
+  }, [isHalf]);
+
+  const heroBgAnimated = heroColorAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [C.heroFull, C.heroHalf],
+  });
 
   useEffect(() => {
     getStateCode().then(code => { setGeoState(code); setGeoLoading(false); });
@@ -523,7 +541,7 @@ export default function App() {
 
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: heroBg }]}>
+    <AnimatedSafeAreaView style={[styles.container, { backgroundColor: heroBgAnimated }]}>
       <StatusBar barStyle="light-content" />
       <ScrollView
         ref={scrollRef}
@@ -531,9 +549,9 @@ export default function App() {
       >
 
         {/* ── HERO ── */}
-        <View style={[styles.hero, {
+        <Animated.View style={[styles.hero, {
           minHeight: Math.max(windowHeight * 0.65, 480),
-          backgroundColor: heroBg,
+          backgroundColor: heroBgAnimated,
           paddingVertical: isMd ? 80 : 52,
           gap: isMd ? 24 : 18,
         }]}>
@@ -597,7 +615,7 @@ export default function App() {
             <ReasonCard national={flagData?.national} state={flagData?.state} />
           ) : null}
 
-        </View>
+        </Animated.View>
 
         {/* ── CONTENT AREA ── */}
         <View style={styles.content}>
@@ -632,7 +650,7 @@ export default function App() {
             {effectiveState ? (
               <View style={[styles.statusRow, { borderTopColor: C.rule, marginTop: 10 }]}>
                 <View style={[styles.statusAccentBar, {
-                  backgroundColor: isStateHalf ? C.crimson : '#9B7830',
+                  backgroundColor: isStateHalf ? C.crimson : '#2B5CB0',
                 }]} />
                 <View style={styles.statusNameRow}>
                   <View style={styles.statusScopeGroup}>
@@ -664,21 +682,13 @@ export default function App() {
             <View style={styles.upcomingCards}>
               {upcoming.map(item => (
                 <View key={item.label} style={styles.upcomingCard}>
-                  {Platform.OS === 'web' ? (
-                    <View pointerEvents="none" style={{
-                      position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-                      backgroundImage: PAPER_URL, backgroundSize: 'cover',
-                      opacity: 0.12, mixBlendMode: 'screen',
-                    }} />
-                  ) : null}
-                  <View style={styles.upcomingNum}>
-                    <Text style={styles.upcomingDays}>{item.days}</Text>
-                    <Text style={styles.upcomingDaysLabel}>days</Text>
-                  </View>
                   <View style={styles.upcomingInfo}>
                     <Text style={styles.upcomingName}>{item.label}</Text>
                     <Text style={styles.upcomingDate}>{item.dateStr}</Text>
                   </View>
+                  <Text style={styles.upcomingDays}>
+                    {item.days}<Text style={styles.upcomingDaysLabel}> days</Text>
+                  </Text>
                 </View>
               ))}
             </View>
@@ -730,7 +740,7 @@ export default function App() {
           }} />
         </Animated.View>
       ) : null}
-    </SafeAreaView>
+    </AnimatedSafeAreaView>
   );
 }
 
@@ -957,55 +967,42 @@ const styles = StyleSheet.create({
 
   // ── Upcoming ──
   upcomingCards: {
-    gap: 10,
     marginTop: 4,
+    borderTopWidth: 1,
+    borderTopColor: C.rule,
   },
   upcomingCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 18,
-    paddingHorizontal: 20,
-    backgroundColor: C.heroFull,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: 'rgba(215, 225, 245, 0.12)',
-    overflow: 'hidden',
-    position: 'relative',
-  },
-  upcomingNum: {
-    width: 64,
-    alignItems: 'flex-end',
-    marginRight: 24,
-  },
-  upcomingDays: {
-    fontFamily: SERIF,
-    fontSize: 46,
-    fontWeight: '400',
-    color: C.textOnFull,
-    lineHeight: 50,
-  },
-  upcomingDaysLabel: {
-    fontFamily: BODY,
-    fontSize: 12,
-    fontWeight: '600',
-    textTransform: 'uppercase',
-    letterSpacing: 1.2,
-    color: C.mutedOnFull,
-    marginTop: 1,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: C.rule,
   },
   upcomingInfo: { flex: 1 },
   upcomingName: {
     fontFamily: BODY,
-    fontSize: 20,
+    fontSize: 15,
     fontWeight: '600',
-    color: C.textOnFull,
-    letterSpacing: 0.2,
+    color: C.ink,
   },
   upcomingDate: {
     fontFamily: BODY,
-    fontSize: 16,
-    color: C.accentOnFull,
+    fontSize: 13,
+    color: C.muted,
     marginTop: 3,
+  },
+  upcomingDays: {
+    fontFamily: SERIF,
+    fontSize: 28,
+    fontWeight: '400',
+    color: C.ink,
+    opacity: 0.65,
+  },
+  upcomingDaysLabel: {
+    fontFamily: BODY,
+    fontSize: 12,
+    color: C.muted,
+    opacity: 1,
   },
 
   // ── Footer ──
