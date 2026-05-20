@@ -1,5 +1,11 @@
 import React, { useEffect, useRef } from 'react';
-import { Animated, Easing, View } from 'react-native';
+import { Animated, Easing, Platform, View } from 'react-native';
+
+// Respect prefers-reduced-motion on web; native defaults to false
+const prefersReducedMotion = () =>
+  Platform.OS === 'web' && typeof window !== 'undefined'
+    ? (window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ?? false)
+    : false;
 import Svg, {
   Rect, Circle, Line, G, Defs,
   ClipPath,
@@ -29,7 +35,7 @@ export default function FlagPole({ isHalf = false, scale = 1 }) {
     const timer = setTimeout(() => {
       Animated.timing(slideY, {
         toValue: isHalf ? SLIDE_DISTANCE : 0,
-        duration: 1400,
+        duration: prefersReducedMotion() ? 0 : 1400,
         easing: Easing.inOut(Easing.cubic),
         useNativeDriver: true,
       }).start();
@@ -38,7 +44,7 @@ export default function FlagPole({ isHalf = false, scale = 1 }) {
   }, [isHalf]);
 
   return (
-    <View style={{ width: W * scale, height: H * scale }}>
+    <View accessible={false} style={{ width: W * scale, height: H * scale }}>
       {/* Static pole — pure hairline */}
       <Svg width={W * scale} height={H * scale} viewBox={`0 0 ${W} ${H}`} style={{ position: 'absolute' }}>
         <Line

@@ -13,6 +13,12 @@ const API_BASE = (Platform.OS !== 'web' || (typeof __DEV__ !== 'undefined' && __
 const FEEDBACK_EMAIL = 'hello@example.com'; // TODO: replace
 const BMC_URL = 'https://buymeacoffee.com/YOUR_USERNAME'; // TODO: replace
 
+// Respect prefers-reduced-motion on web
+const prefersReducedMotion = () =>
+  Platform.OS === 'web' && typeof window !== 'undefined'
+    ? (window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ?? false)
+    : false;
+
 // ── Colors ───────────────────────────────────────────────────────────────────
 
 const C = {
@@ -135,7 +141,7 @@ function upcomingDates(from = new Date(), count = 3) {
     .slice(0, count)
     .map(({ date, label }) => ({
       label,
-      dateStr: date.toLocaleDateString('en-US', { month: 'long', day: 'numeric' }),
+      dateStr: date.toLocaleDateString(undefined, { month: 'long', day: 'numeric' }),
       days: Math.ceil((date - from) / 86_400_000),
     }));
 }
@@ -214,7 +220,7 @@ function StatePicker({ value, onChange, textColor, mutedColor, geoLoading }) {
                   onChangeText={setSearch}
                   placeholder="Search states…"
                   placeholderTextColor={C.muted}
-                  style={[styles.dropdownSearchInput, { outlineStyle: 'none' }]}
+                  style={[styles.dropdownSearchInput, { outlineStyle: 'solid', outlineColor: C.navy, outlineWidth: 1.5, outlineOffset: 0 }]}
                   autoFocus
                 />
               </View>
@@ -358,7 +364,7 @@ function ReasonCard({ national, state }) {
       <View style={styles.reasonCardRule} />
       <View style={styles.reasonCardBody}>
         <Text style={styles.reasonCardEyebrow}>Why the flag is at half-staff</Text>
-        <Text style={styles.reasonCardText}>"{item.reason}"</Text>
+        <Text style={styles.reasonCardText}>{'“'}{item.reason}{'”'}</Text>
         <View style={styles.reasonCardFooter}>
           <Text style={styles.reasonCardIssuer}>— {issuer}</Text>
           {linkUrl ? (
@@ -395,10 +401,25 @@ export default function App() {
   const [error,       setError]       = useState(null);
   const [geoState,    setGeoState]    = useState(null);
   const [geoLoading,  setGeoLoading]  = useState(true);
-  const [pickedState, setPickedState] = useState(null);
+  const [pickedState, setPickedState] = useState(() => {
+    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      return new URLSearchParams(window.location.search).get('state') || null;
+    }
+    return null;
+  });
   const [updatedAt,   setUpdatedAt]   = useState(null);
 
   const effectiveState = pickedState ?? geoState;
+
+  const handleStateChange = (code) => {
+    setPickedState(code);
+    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      if (code) { url.searchParams.set('state', code); }
+      else       { url.searchParams.delete('state'); }
+      window.history.replaceState({}, '', url.toString());
+    }
+  };
 
   // ── Headline animation — matches FlagPole exactly (300ms delay + 1400ms inOut cubic) ──
   const headlineAnim = useRef(new Animated.Value(1)).current;
@@ -410,7 +431,7 @@ export default function App() {
     const t = setTimeout(() => {
       Animated.timing(headlineAnim, {
         toValue: 1,
-        duration: 1400,
+        duration: prefersReducedMotion() ? 0 : 1400,
         easing: Easing.inOut(Easing.cubic),
         useNativeDriver: false,
       }).start();
@@ -478,10 +499,10 @@ export default function App() {
   const stateName   = effectiveState ? US_STATES.find(s => s.code === effectiveState)?.name : null;
   const upcoming    = upcomingDates();
   const updatedStr  = updatedAt
-    ? updatedAt.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+    ? updatedAt.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })
     : null;
 
-  const dateline = new Date().toLocaleDateString('en-US', {
+  const dateline = new Date().toLocaleDateString(undefined, {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
   }).toUpperCase();
 
@@ -536,21 +557,27 @@ export default function App() {
           <FlagPole isHalf={isHalf} scale={isLg ? 1.35 : isMd ? 1.15 : 1} />
 
           {/* Headline block — animated in sync with flag */}
-          <Animated.View style={[styles.headlineBlock, {
-            width: '100%', paddingHorizontal: 32,
-            opacity: headlineOpacity,
-            transform: [{ scale: headlineScale }, { translateY: headlineY }],
-          }]}>
-            <Text style={[styles.headline, {
-              color: textColor,
-              fontSize: isLg ? 88 : isMd ? 72 : 62,
-              lineHeight: isLg ? 96 : isMd ? 80 : 68,
-            }]}>{statusLabel}</Text>
+          <Animated.View
+            accessibilityLiveRegion="polite"
+            style={[styles.headlineBlock, {
+              width: '100%', paddingHorizontal: 32,
+              opacity: headlineOpacity,
+              transform: [{ scale: headlineScale }, { translateY: headlineY }],
+            }]}
+          >
+            <Text
+              accessibilityRole="header"
+              style={[styles.headline, {
+                color: textColor,
+                fontSize: isLg ? 88 : isMd ? 72 : 62,
+                lineHeight: isLg ? 96 : isMd ? 80 : 68,
+              }]}
+            >{statusLabel}</Text>
           </Animated.View>
 
           <StatePicker
             value={effectiveState}
-            onChange={setPickedState}
+            onChange={handleStateChange}
             textColor={textColor}
             mutedColor={mutedColor}
             geoLoading={geoLoading && !pickedState}
