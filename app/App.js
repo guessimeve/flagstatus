@@ -758,7 +758,7 @@ export default function App() {
                     <Text style={styles.infoModalBold}>Sources</Text>{'\n'}
                     · White House press releases{'\n'}
                     · Federal Register proclamations{'\n'}
-                    · Governor RSS feeds for 18 states{'\n'}
+                    · Governor RSS feeds for 25 states{'\n'}
                     · Statutory dates under 4 U.S.C. § 7 (Memorial Day, Patriot Day, Pearl Harbor Day, Peace Officers Memorial Day){'\n\n'}
                     <Text style={styles.infoModalBold}>How it works</Text>{'\n'}
                     Our server scrapes these sources every 30 minutes. Statutory dates are always applied automatically. Proclamations take priority over the default full-staff status.{'\n\n'}
