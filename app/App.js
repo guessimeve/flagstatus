@@ -674,7 +674,7 @@ export default function App() {
                 points="1,1 14,13 27,1"
                 fill="none"
                 stroke={textColor}
-                strokeWidth={1.5}
+                strokeWidth={2.2}
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 opacity={0.5}
