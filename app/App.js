@@ -424,6 +424,21 @@ export default function App() {
   // ── Headline animation — matches FlagPole exactly (300ms delay + 1400ms inOut cubic) ──
   const headlineAnim = useRef(new Animated.Value(1)).current;
   const blurOpacity  = useRef(new Animated.Value(1)).current;
+  const scrollRef    = useRef(null);
+
+  // Attach native DOM scroll listener (fires reliably both directions on web)
+  useEffect(() => {
+    if (Platform.OS !== 'web' || typeof window === 'undefined') return;
+    let node;
+    try { node = scrollRef.current?.getScrollableNode?.(); } catch {}
+    if (!node) return;
+    const onScroll = () => {
+      const remaining = node.scrollHeight - node.clientHeight - node.scrollTop;
+      blurOpacity.setValue(Math.min(1, Math.max(0, (remaining - 60) / 140)));
+    };
+    node.addEventListener('scroll', onScroll, { passive: true });
+    return () => node.removeEventListener('scroll', onScroll);
+  }, []);
 
   useEffect(() => {
     if (!flagData) return;
@@ -506,22 +521,13 @@ export default function App() {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
   }).toUpperCase();
 
-  const handleScroll = Platform.OS === 'web'
-    ? (e) => {
-        const { contentOffset, contentSize, layoutMeasurement } = e.nativeEvent;
-        const remaining = contentSize.height - layoutMeasurement.height - contentOffset.y;
-        // Fade out blur starting 200px from bottom, fully gone at ~60px
-        blurOpacity.setValue(Math.min(1, Math.max(0, (remaining - 60) / 140)));
-      }
-    : null;
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: heroBg }]}>
       <StatusBar barStyle="light-content" />
       <ScrollView
+        ref={scrollRef}
         showsVerticalScrollIndicator={false}
-        onScroll={handleScroll}
-        scrollEventThrottle={16}
       >
 
         {/* ── HERO ── */}
@@ -624,9 +630,9 @@ export default function App() {
             </View>
 
             {effectiveState ? (
-              <View style={[styles.statusRow, { borderTopColor: C.rule }]}>
+              <View style={[styles.statusRow, { borderTopColor: C.rule, marginTop: 10 }]}>
                 <View style={[styles.statusAccentBar, {
-                  backgroundColor: isStateHalf ? C.crimson : '#3D7A35',
+                  backgroundColor: isStateHalf ? C.crimson : '#9B7830',
                 }]} />
                 <View style={styles.statusNameRow}>
                   <View style={styles.statusScopeGroup}>

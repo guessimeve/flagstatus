@@ -15,7 +15,7 @@ const W = 180;
 const H = 250;
 const POLE_X = 41;
 const POLE_TOP = 22;
-const POLE_H = 205;
+const POLE_H = 188;
 const FLAG_W = 114;
 const FLAG_H = 70;
 const FLAG_FULL_Y = POLE_TOP;
@@ -50,7 +50,7 @@ export default function FlagPole({ isHalf = false, scale = 1 }) {
         <Line
           x1={POLE_X + 3} y1={POLE_TOP}
           x2={POLE_X + 3} y2={POLE_TOP + POLE_H}
-          stroke="#4A6A88" strokeWidth={2}
+          stroke="#3A4E62" strokeWidth={3}
         />
       </Svg>
 
