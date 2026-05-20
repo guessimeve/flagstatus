@@ -10,8 +10,9 @@ import FlagPole from './FlagPole';
 const API_BASE = (Platform.OS !== 'web' || (typeof __DEV__ !== 'undefined' && __DEV__))
   ? 'http://localhost:3001'
   : '';
-const FEEDBACK_EMAIL = 'hello@example.com'; // TODO: replace
-const BMC_URL = 'https://buymeacoffee.com/YOUR_USERNAME'; // TODO: replace
+const FEEDBACK_EMAIL = 'evequivive@icloud.com';
+const KOFI_URL = 'https://ko-fi.com/eve78871';
+const LINKEDIN_URL = 'https://www.linkedin.com/in/evelyn-meyerhoefer';
 
 // Respect prefers-reduced-motion on web
 const prefersReducedMotion = () =>
@@ -408,6 +409,8 @@ export default function App() {
     return null;
   });
   const [updatedAt,   setUpdatedAt]   = useState(null);
+  const [showPrivacy, setShowPrivacy] = useState(false);
+  const [showAbout,   setShowAbout]   = useState(false);
 
   const effectiveState = pickedState ?? geoState;
 
@@ -684,8 +687,8 @@ export default function App() {
             </View>
             <View style={styles.footerLinks}>
               <TouchableOpacity
-                onPress={() => Linking.openURL(BMC_URL)}
-                accessibilityLabel="Buy me a coffee"
+                onPress={() => Linking.openURL(KOFI_URL)}
+                accessibilityLabel="Support this project on Ko-fi"
                 accessibilityRole="link"
               >
                 <Text style={styles.footerCoffee}>◆ Support this project</Text>
@@ -698,7 +701,76 @@ export default function App() {
                 <Text style={styles.footerFeedback}>Found a bug? Let me know →</Text>
               </TouchableOpacity>
             </View>
+            <View style={styles.footerLinks}>
+              <TouchableOpacity
+                onPress={() => Linking.openURL(LINKEDIN_URL)}
+                accessibilityLabel="LinkedIn profile"
+                accessibilityRole="link"
+              >
+                <Text style={styles.footerMeta}>LinkedIn</Text>
+              </TouchableOpacity>
+              <View style={[styles.footerDivider, { backgroundColor: C.divider }]} />
+              <TouchableOpacity onPress={() => setShowPrivacy(true)} accessibilityRole="button">
+                <Text style={styles.footerMeta}>Privacy Policy</Text>
+              </TouchableOpacity>
+              <View style={[styles.footerDivider, { backgroundColor: C.divider }]} />
+              <TouchableOpacity onPress={() => setShowAbout(true)} accessibilityRole="button">
+                <Text style={styles.footerMeta}>About</Text>
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.footerCopyright}>© {new Date().getFullYear()} Evelyn Meyerhöfer</Text>
           </View>
+
+          {/* Privacy Policy modal */}
+          <Modal visible={showPrivacy} transparent animationType="slide" onRequestClose={() => setShowPrivacy(false)}>
+            <TouchableOpacity style={styles.infoModalOverlay} activeOpacity={1} onPress={() => setShowPrivacy(false)}>
+              <View style={styles.infoModalSheet}>
+                <View style={styles.modalHandle} />
+                <Text style={styles.infoModalTitle}>Privacy Policy</Text>
+                <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
+                  <Text style={styles.infoModalBody}>
+                    Flag Status does not collect, store, or share any personal information.{'\n\n'}
+                    <Text style={styles.infoModalBold}>Location</Text>{'\n'}
+                    If you allow it, your device's location is used to automatically select your state. This happens entirely on your device — your coordinates are reverse-geocoded using the Nominatim service (openstreetmap.org) and are never sent to our servers.{'\n\n'}
+                    <Text style={styles.infoModalBold}>Data</Text>{'\n'}
+                    Flag status data is fetched from our server, which scrapes public government sources. No identifying information is included in these requests.{'\n\n'}
+                    <Text style={styles.infoModalBold}>Analytics</Text>{'\n'}
+                    We use no analytics, tracking pixels, or third-party scripts.{'\n\n'}
+                    Questions? Reach us at {FEEDBACK_EMAIL}.
+                  </Text>
+                </ScrollView>
+                <TouchableOpacity style={styles.infoModalClose} onPress={() => setShowPrivacy(false)}>
+                  <Text style={styles.infoModalCloseText}>Close</Text>
+                </TouchableOpacity>
+              </View>
+            </TouchableOpacity>
+          </Modal>
+
+          {/* About modal */}
+          <Modal visible={showAbout} transparent animationType="slide" onRequestClose={() => setShowAbout(false)}>
+            <TouchableOpacity style={styles.infoModalOverlay} activeOpacity={1} onPress={() => setShowAbout(false)}>
+              <View style={styles.infoModalSheet}>
+                <View style={styles.modalHandle} />
+                <Text style={styles.infoModalTitle}>About</Text>
+                <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
+                  <Text style={styles.infoModalBody}>
+                    Flag Status tracks whether the U.S. flag should be flown at full staff or half-staff, updated automatically from official government sources.{'\n\n'}
+                    <Text style={styles.infoModalBold}>Sources</Text>{'\n'}
+                    · White House press releases{'\n'}
+                    · Federal Register proclamations{'\n'}
+                    · Governor RSS feeds for 18 states{'\n'}
+                    · Statutory dates under 4 U.S.C. § 7 (Memorial Day, Patriot Day, Pearl Harbor Day, Peace Officers Memorial Day){'\n\n'}
+                    <Text style={styles.infoModalBold}>How it works</Text>{'\n'}
+                    Our server scrapes these sources every 30 minutes. Statutory dates are always applied automatically. Proclamations take priority over the default full-staff status.{'\n\n'}
+                    Built by Evelyn Meyerhöfer.
+                  </Text>
+                </ScrollView>
+                <TouchableOpacity style={styles.infoModalClose} onPress={() => setShowAbout(false)}>
+                  <Text style={styles.infoModalCloseText}>Close</Text>
+                </TouchableOpacity>
+              </View>
+            </TouchableOpacity>
+          </Modal>
 
         </View>
         </View>
@@ -847,7 +919,7 @@ const styles = StyleSheet.create({
   // ── Content area ──
   content: {
     backgroundColor: C.bg,
-    paddingBottom: 100,
+    paddingBottom: 180,
   },
   contentInner: {
     maxWidth: 700,
@@ -1030,6 +1102,65 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: C.muted,
+  },
+  footerMeta: {
+    fontFamily: BODY,
+    fontSize: 13,
+    color: C.muted,
+    opacity: 0.7,
+  },
+  footerCopyright: {
+    fontFamily: BODY,
+    fontSize: 12,
+    color: C.muted,
+    opacity: 0.45,
+    marginTop: 4,
+    marginBottom: 16,
+  },
+  infoModalOverlay: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.45)',
+  },
+  infoModalSheet: {
+    backgroundColor: C.bg,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 24,
+    paddingBottom: 40,
+    maxHeight: '75%',
+  },
+  infoModalTitle: {
+    fontFamily: SERIF,
+    fontSize: 22,
+    color: C.ink,
+    marginBottom: 16,
+    marginTop: 8,
+  },
+  infoModalBody: {
+    fontFamily: BODY,
+    fontSize: 15,
+    color: C.ink,
+    lineHeight: 23,
+    opacity: 0.85,
+  },
+  infoModalBold: {
+    fontWeight: '700',
+    color: C.ink,
+  },
+  infoModalClose: {
+    marginTop: 24,
+    alignSelf: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 32,
+    borderRadius: 6,
+    backgroundColor: C.ink,
+  },
+  infoModalCloseText: {
+    fontFamily: BODY,
+    fontSize: 15,
+    fontWeight: '600',
+    color: C.bg,
   },
 
   // ── Desktop dropdown ──
