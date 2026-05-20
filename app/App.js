@@ -423,7 +423,6 @@ export default function App() {
 
   // ── Headline animation — matches FlagPole exactly (300ms delay + 1400ms inOut cubic) ──
   const headlineAnim   = useRef(new Animated.Value(1)).current;
-  const heroColorAnim  = useRef(new Animated.Value(0)).current;
   const blurOpacity    = useRef(new Animated.Value(1)).current;
   const scrollRef    = useRef(null);
 
@@ -454,21 +453,6 @@ export default function App() {
     }, 300);
     return () => clearTimeout(t);
   }, [flagData?.effective]);
-
-  // Hero background color cross-fades when status changes
-  useEffect(() => {
-    Animated.timing(heroColorAnim, {
-      toValue: isHalf ? 1 : 0,
-      duration: prefersReducedMotion() ? 0 : 900,
-      easing: Easing.inOut(Easing.cubic),
-      useNativeDriver: false,
-    }).start();
-  }, [isHalf]);
-
-  const heroBgAnimated = heroColorAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [C.heroFull, C.heroHalf],
-  });
 
   useEffect(() => {
     getStateCode().then(code => { setGeoState(code); setGeoLoading(false); });
@@ -547,11 +531,12 @@ export default function App() {
       >
 
         {/* ── HERO ── */}
-        <Animated.View style={[styles.hero, {
+        <View style={[styles.hero, {
           minHeight: Math.max(windowHeight * 0.65, 480),
-          backgroundColor: heroBgAnimated,
+          backgroundColor: heroBg,
           paddingVertical: isMd ? 80 : 52,
           gap: isMd ? 24 : 18,
+          transition: prefersReducedMotion() ? undefined : 'background-color 0.9s cubic-bezier(0.645, 0.045, 0.355, 1)',
         }]}>
           {Platform.OS === 'web' ? (
             <>
@@ -613,7 +598,7 @@ export default function App() {
             <ReasonCard national={flagData?.national} state={flagData?.state} />
           ) : null}
 
-        </Animated.View>
+        </View>
 
         {/* ── CONTENT AREA ── */}
         <View style={styles.content}>
