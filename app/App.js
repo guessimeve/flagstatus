@@ -182,8 +182,6 @@ async function getStateCode() {
 
 // ── State picker ─────────────────────────────────────────────────────────────
 
-const AnimatedSafeAreaView = Animated.createAnimatedComponent(SafeAreaView);
-
 function StatePicker({ value, onChange, textColor, mutedColor, geoLoading }) {
   const { width } = useWindowDimensions();
   const [open, setOpen] = useState(false);
@@ -541,7 +539,7 @@ export default function App() {
 
 
   return (
-    <AnimatedSafeAreaView style={[styles.container, { backgroundColor: heroBgAnimated }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: heroBg }]}>
       <StatusBar barStyle="light-content" />
       <ScrollView
         ref={scrollRef}
@@ -740,7 +738,7 @@ export default function App() {
           }} />
         </Animated.View>
       ) : null}
-    </AnimatedSafeAreaView>
+    </SafeAreaView>
   );
 }
 
