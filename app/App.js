@@ -603,16 +603,16 @@ export default function App() {
 
             {/* National row */}
             <View style={[styles.statusRow, { borderTopColor: C.rule }]}>
-              <View style={[styles.statusAccentBar, { backgroundColor: C.navy }]} />
+              <View style={[styles.statusAccentBar, { backgroundColor: '#2B5CB0' }]} />
               <View style={styles.statusNameRow}>
                 <View style={styles.statusScopeGroup}>
                   <Text style={styles.statusScopeLabel}>Federal</Text>
                   <Text style={styles.statusScope}>National</Text>
                 </View>
                 <View style={[styles.statusBadgePill, {
-                  backgroundColor: isNatHalf ? 'rgba(160,24,24,0.09)' : 'rgba(42,69,40,0.08)',
+                  backgroundColor: isNatHalf ? 'rgba(160,24,24,0.09)' : 'rgba(43,92,176,0.10)',
                 }]}>
-                  <Text style={[styles.statusBadge, { color: isNatHalf ? C.crimson : C.forest }]}>
+                  <Text style={[styles.statusBadge, { color: isNatHalf ? C.crimson : '#2B5CB0' }]}>
                     {isNatHalf ? 'Half-Staff' : 'Full Staff'}
                   </Text>
                 </View>
@@ -634,9 +634,9 @@ export default function App() {
                     <Text style={styles.statusScope}>{stateName ?? effectiveState}</Text>
                   </View>
                   <View style={[styles.statusBadgePill, {
-                    backgroundColor: isStateHalf ? 'rgba(160,24,24,0.09)' : 'rgba(42,69,40,0.08)',
+                    backgroundColor: isStateHalf ? 'rgba(160,24,24,0.09)' : 'rgba(43,92,176,0.10)',
                   }]}>
-                    <Text style={[styles.statusBadge, { color: isStateHalf ? C.crimson : C.forest }]}>
+                    <Text style={[styles.statusBadge, { color: isStateHalf ? C.crimson : '#2B5CB0' }]}>
                       {isStateHalf ? 'Half-Staff' : 'Full Staff'}
                     </Text>
                   </View>
@@ -689,7 +689,7 @@ export default function App() {
                 accessibilityLabel="Buy me a coffee"
                 accessibilityRole="link"
               >
-                <Text style={styles.footerCoffee}>☕ Support this project</Text>
+                <Text style={styles.footerCoffee}>◆ Support this project</Text>
               </TouchableOpacity>
               <View style={[styles.footerDivider, { backgroundColor: C.divider }]} />
               <TouchableOpacity
@@ -715,10 +715,12 @@ export default function App() {
             WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.4) 40%, black 75%)',
             maskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.4) 40%, black 75%)',
           }} />
-          {/* Subtle color veil to blend into page */}
+          {/* Color veil — matches hero in half-staff, cream in full-staff */}
           <View pointerEvents="none" style={{
             position: 'fixed', bottom: 0, left: 0, right: 0, height: 160, zIndex: 51,
-            backgroundImage: 'linear-gradient(to bottom, transparent 35%, rgba(237,232,220,0.4) 100%)',
+            backgroundImage: isHalf
+              ? 'linear-gradient(to bottom, transparent 35%, rgba(20,6,6,0.5) 100%)'
+              : 'linear-gradient(to bottom, transparent 35%, rgba(237,232,220,0.4) 100%)',
           }} />
         </Animated.View>
       ) : null}
@@ -795,17 +797,18 @@ const styles = StyleSheet.create({
     width: '100%',
     alignSelf: 'center',
     flexDirection: 'row',
-    backgroundColor: C.subtleOnHalf,
+    backgroundColor: 'rgba(232,226,210,0.94)',
+    borderRadius: 6,
     paddingVertical: 22,
     paddingRight: 24,
   },
   reasonCardRule: {
     width: 2,
-    backgroundColor: C.accentOnHalf,
+    backgroundColor: C.crimson,
     marginRight: 20,
     marginLeft: 0,
     borderRadius: 1,
-    opacity: 0.8,
+    opacity: 0.7,
   },
   reasonCardBody: {
     flex: 1,
@@ -817,14 +820,14 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     letterSpacing: 1.6,
     textTransform: 'uppercase',
-    color: C.linkOnHalf,
+    color: C.muted,
   },
   reasonCardText: {
     fontFamily: SERIF,
     fontSize: 24,
     fontStyle: 'italic',
     lineHeight: 36,
-    color: C.textOnHalf,
+    color: C.ink,
   },
   reasonCardFooter: {
     gap: 6,
@@ -833,13 +836,13 @@ const styles = StyleSheet.create({
   reasonCardIssuer: {
     fontFamily: BODY,
     fontSize: 16,
-    color: C.captionOnHalf,
+    color: C.muted,
   },
   reasonCardLink: {
     fontFamily: BODY,
     fontSize: 16,
     fontWeight: '600',
-    color: C.linkOnHalf,
+    color: C.navy,
   },
 
   // ── Content area ──

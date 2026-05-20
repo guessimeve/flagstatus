@@ -18,7 +18,7 @@ const POLE_TOP = 22;
 const POLE_H = 205;
 const FLAG_W = 114;
 const FLAG_H = 70;
-const FLAG_FULL_Y = POLE_TOP + 4;
+const FLAG_FULL_Y = POLE_TOP;
 const POLE_MID = POLE_TOP + POLE_H / 2;
 const FLAG_HALF_Y = POLE_MID - FLAG_H / 2;
 const SLIDE_DISTANCE = FLAG_HALF_Y - FLAG_FULL_Y;
@@ -50,7 +50,7 @@ export default function FlagPole({ isHalf = false, scale = 1 }) {
         <Line
           x1={POLE_X + 3} y1={POLE_TOP}
           x2={POLE_X + 3} y2={POLE_TOP + POLE_H}
-          stroke="#4A6A88" strokeWidth={1.5}
+          stroke="#4A6A88" strokeWidth={2}
         />
       </Svg>
 
@@ -58,7 +58,7 @@ export default function FlagPole({ isHalf = false, scale = 1 }) {
       <Animated.View
         style={{
           position: 'absolute',
-          left: (POLE_X + 3) * scale,
+          left: (POLE_X + 5) * scale,
           top: FLAG_FULL_Y * scale,
           transform: [{ translateY: scaledSlideY }],
         }}
