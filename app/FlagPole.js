@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, Easing, View } from 'react-native';
 import Svg, {
-  Rect, Circle, Ellipse, Line, G, Defs,
-  LinearGradient, Stop, ClipPath,
+  Rect, Circle, Line, G, Defs,
+  ClipPath,
 } from 'react-native-svg';
 
 const W = 180;
@@ -39,33 +39,20 @@ export default function FlagPole({ isHalf = false, scale = 1 }) {
 
   return (
     <View style={{ width: W * scale, height: H * scale }}>
-      {/* Static pole */}
+      {/* Static pole — pure hairline */}
       <Svg width={W * scale} height={H * scale} viewBox={`0 0 ${W} ${H}`} style={{ position: 'absolute' }}>
-        <Defs>
-          <LinearGradient id="pole" x1="0" y1="0" x2="1" y2="0">
-            <Stop offset="0%"   stopColor="#3E4E60"/>
-            <Stop offset="35%"  stopColor="#6E8096"/>
-            <Stop offset="65%"  stopColor="#5E7085"/>
-            <Stop offset="100%" stopColor="#3E4E60"/>
-          </LinearGradient>
-        </Defs>
-        <Rect x={POLE_X} y={POLE_TOP} width={6} height={POLE_H} rx={2} fill="url(#pole)"/>
-        <Ellipse cx={POLE_X + 3} cy={POLE_TOP}     rx={5} ry={3.5} fill="#5E7085"/>
-        <Ellipse cx={POLE_X + 3} cy={POLE_TOP - 1} rx={4} ry={3}   fill="#7A8FA0"/>
         <Line
-          x1={POLE_X + 3} y1={POLE_TOP + 4}
-          x2={POLE_X + 3} y2={POLE_TOP + POLE_H - 4}
-          stroke="#5E7085" strokeWidth={1} strokeDasharray="4,3" opacity={0.35}
+          x1={POLE_X + 3} y1={POLE_TOP}
+          x2={POLE_X + 3} y2={POLE_TOP + POLE_H}
+          stroke="#4A6A88" strokeWidth={1.5}
         />
-        <Rect x={POLE_X - 6}  y={POLE_TOP + POLE_H}     width={18} height={4} rx={1} fill="url(#pole)"/>
-        <Rect x={POLE_X - 9}  y={POLE_TOP + POLE_H + 4} width={24} height={4} rx={1} fill="#3A4855"/>
       </Svg>
 
       {/* Animated flag */}
       <Animated.View
         style={{
           position: 'absolute',
-          left: (POLE_X + 6) * scale,
+          left: (POLE_X + 3) * scale,
           top: FLAG_FULL_Y * scale,
           transform: [{ translateY: scaledSlideY }],
         }}
@@ -82,20 +69,20 @@ export default function FlagPole({ isHalf = false, scale = 1 }) {
           </Defs>
 
           <G clipPath="url(#flag-clip)">
-            {/* 13 stripes */}
+            {/* 13 stripes — flat bold colors, geometric */}
             {[...Array(13)].map((_, i) => (
               <Rect
                 key={i}
                 x={0} y={i * (FLAG_H / 13)}
                 width={FLAG_W} height={FLAG_H / 13 + 0.5}
-                fill={i % 2 === 0 ? '#B22234' : '#FFFFFF'}
+                fill={i % 2 === 0 ? '#BF0A30' : '#FFFFFF'}
               />
             ))}
 
-            {/* Canton (union) */}
+            {/* Canton (union) — flat, no gradients */}
             <Rect x={0} y={0} width={CANTON_W} height={CANTON_H} fill="#002868"/>
 
-            {/* 50 stars — clipped to canton so bottom rows don't bleed */}
+            {/* 50 stars — clipped to canton, slightly bolder dots */}
             <G fill="white" clipPath="url(#canton-clip)">
               {[0,1,2,3,4,5,6,7,8].map(row => {
                 const isWide = row % 2 === 0;
@@ -108,7 +95,7 @@ export default function FlagPole({ isHalf = false, scale = 1 }) {
                     key={`${row}-${col}`}
                     cx={xStart + col * xStep}
                     cy={y}
-                    r={1.25}
+                    r={1.4}
                   />
                 ));
               })}
