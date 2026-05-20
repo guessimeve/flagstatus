@@ -10,36 +10,37 @@ const API_BASE = (Platform.OS !== 'web' || (typeof __DEV__ !== 'undefined' && __
   ? 'http://localhost:3001'
   : '';
 const FEEDBACK_EMAIL = 'hello@example.com'; // TODO: replace
-const BMC_URL = 'https://buymeacoffee.com/YOUR_USERNAME'; // TODO: replace
 
 // ── Colors ───────────────────────────────────────────────────────────────────
 
 const C = {
   // Hero — full staff (deep navy)
   heroFull:     '#0A1628',
-  heroFullSub:  '#142240',
   textOnFull:   '#E8E2D2',
   mutedOnFull:  '#4A6080',
   accentOnFull: '#6A90B0',
   ruleOnFull:   'rgba(215, 225, 245, 0.12)',
-  // Hero — half mast (near-black blood)
-  heroHalf:     '#110303',
-  heroHalfSub:  '#1F0606',
-  textOnHalf:   '#EBE0D8',
-  mutedOnHalf:  '#7A5252',
-  accentOnHalf: '#A85050',
-  ruleOnHalf:   'rgba(235, 224, 216, 0.12)',
+  // Hero — half-staff (near-black blood)
+  heroHalf:       '#110303',
+  textOnHalf:     '#EBE0D8',
+  mutedOnHalf:    '#7A5252',
+  accentOnHalf:   '#A85050',
+  linkOnHalf:     '#C07070',
+  captionOnHalf:  '#9B8A86',
+  subtleOnHalf:   'rgba(255, 248, 240, 0.07)',
+  ruleOnHalf:     'rgba(235, 224, 216, 0.12)',
   // Content area (always light)
-  bg:      '#F7F3EA',
-  ink:     '#0E0D0A',
-  muted:   '#68655C',
-  rule:    '#D6D1C4',
-  divider: '#C4BFB0',
-  white:   '#FFFFFF',
-  red:     '#8B1515',
-  crimson: '#A01818',
-  navy:    '#1B2848',
-  forest:  '#2A4528',
+  bg:       '#F7F3EA',
+  ink:      '#0E0D0A',
+  muted:    '#68655C',
+  rule:     '#D6D1C4',
+  divider:  '#C4BFB0',
+  white:    '#FFFFFF',
+  rowActive:'#F0F0F8',
+  chrome:   '#D0D0D0',
+  crimson:  '#A01818',
+  navy:     '#1B2848',
+  forest:   '#2A4528',
 };
 
 // ── US States ────────────────────────────────────────────────────────────────
@@ -191,6 +192,8 @@ function StatePicker({ value, onChange, textColor, mutedColor }) {
         <TouchableOpacity
           onPress={() => { setOpen(o => !o); setSearch(''); }}
           style={styles.locationRow}
+          accessibilityLabel={stateName ? `State: ${stateName}. Tap to change.` : 'Select your state'}
+          accessibilityRole="button"
         >
           <Text style={[styles.locationPin, { color: mutedColor }]}>◎</Text>
           <Text style={[styles.locationName, { color: textColor }]}>
@@ -250,7 +253,12 @@ function StatePicker({ value, onChange, textColor, mutedColor }) {
 
   return (
     <>
-      <TouchableOpacity onPress={() => setOpen(true)} style={styles.locationRow}>
+      <TouchableOpacity
+        onPress={() => setOpen(true)}
+        style={styles.locationRow}
+        accessibilityLabel={stateName ? `State: ${stateName}. Tap to change.` : 'Select your state'}
+        accessibilityRole="button"
+      >
         <Text style={[styles.locationPin, { color: mutedColor }]}>◎</Text>
         <Text style={[styles.locationName, { color: textColor }]}>
           {stateName ?? 'Select your state'}
@@ -266,7 +274,7 @@ function StatePicker({ value, onChange, textColor, mutedColor }) {
             <View style={styles.modalHandle} />
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Your location</Text>
-              <TouchableOpacity onPress={() => setOpen(false)}>
+              <TouchableOpacity onPress={() => setOpen(false)} accessibilityLabel="Done" accessibilityRole="button">
                 <Text style={styles.modalDone}>Done</Text>
               </TouchableOpacity>
             </View>
@@ -320,7 +328,11 @@ function ReasonCard({ national, state }) {
         <View style={styles.reasonCardFooter}>
           <Text style={styles.reasonCardIssuer}>— {issuer}</Text>
           {linkUrl ? (
-            <TouchableOpacity onPress={() => Linking.openURL(linkUrl)}>
+            <TouchableOpacity
+              onPress={() => Linking.openURL(linkUrl)}
+              accessibilityLabel={`Read the full ${linkLabel}`}
+              accessibilityRole="link"
+            >
               <Text style={styles.reasonCardLink}>Read the full {linkLabel} ↗</Text>
             </TouchableOpacity>
           ) : null}
@@ -577,18 +589,6 @@ const styles = StyleSheet.create({
   },
 
   // Dateline
-  datelineRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    width: '100%',
-    paddingHorizontal: 0,
-    maxWidth: 640,
-  },
-  datelineLine: {
-    flex: 1,
-    height: 1,
-  },
   datelineText: {
     fontFamily: BODY,
     fontSize: 11,
@@ -637,19 +637,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     marginLeft: 2,
   },
-  updatedAt: {
-    fontFamily: BODY,
-    fontSize: 13,
-    letterSpacing: 0.3,
-  },
-  scrollHint: {
-    fontFamily: BODY,
-    fontSize: 18,
-    position: 'absolute',
-    bottom: 28,
-    opacity: 0.5,
-  },
-
   // ── Reason card (proclamation blockquote style) ──
   reasonCard: {
     marginHorizontal: 24,
@@ -657,13 +644,13 @@ const styles = StyleSheet.create({
     width: '100%',
     alignSelf: 'center',
     flexDirection: 'row',
-    backgroundColor: 'rgba(255, 248, 240, 0.07)',
+    backgroundColor: C.subtleOnHalf,
     paddingVertical: 22,
     paddingRight: 24,
   },
   reasonCardRule: {
     width: 2,
-    backgroundColor: '#A85050',
+    backgroundColor: C.accentOnHalf,
     marginRight: 20,
     marginLeft: 0,
     borderRadius: 1,
@@ -679,14 +666,14 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     letterSpacing: 1.6,
     textTransform: 'uppercase',
-    color: '#C07070',
+    color: C.linkOnHalf,
   },
   reasonCardText: {
     fontFamily: SERIF,
     fontSize: 22,
     fontStyle: 'italic',
     lineHeight: 33,
-    color: '#EDE0D8',
+    color: C.textOnHalf,
   },
   reasonCardFooter: {
     gap: 6,
@@ -695,13 +682,13 @@ const styles = StyleSheet.create({
   reasonCardIssuer: {
     fontFamily: BODY,
     fontSize: 15,
-    color: '#9B8A86',
+    color: C.captionOnHalf,
   },
   reasonCardLink: {
     fontFamily: BODY,
     fontSize: 15,
     fontWeight: '600',
-    color: '#C07070',
+    color: C.linkOnHalf,
   },
 
   // ── Content area ──
@@ -843,12 +830,6 @@ const styles = StyleSheet.create({
     height: 1,
     marginBottom: 4,
   },
-  footerSupport: {
-    fontFamily: BODY,
-    fontSize: 16,
-    fontWeight: '600',
-    color: C.navy,
-  },
   footerFeedback: {
     fontFamily: BODY,
     fontSize: 15,
@@ -892,9 +873,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#F0EFF0',
+    borderBottomColor: C.rule,
   },
-  dropdownRowActive: { backgroundColor: '#F0F0F8' },
+  dropdownRowActive: { backgroundColor: C.rowActive },
   dropdownRowText: {
     fontFamily: BODY,
     fontSize: 16,
@@ -920,7 +901,7 @@ const styles = StyleSheet.create({
   },
   modalHandle: {
     width: 36, height: 4, borderRadius: 2,
-    backgroundColor: '#D0D0D0',
+    backgroundColor: C.chrome,
     alignSelf: 'center',
     marginTop: 10, marginBottom: 4,
   },
@@ -952,9 +933,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 14,
     borderBottomWidth: 1,
-    borderBottomColor: '#EFEFEF',
+    borderBottomColor: C.rule,
   },
-  modalRowActive: { backgroundColor: '#F0F0F4' },
+  modalRowActive: { backgroundColor: C.rowActive },
   modalRowText: {
     fontFamily: BODY,
     fontSize: 16,
