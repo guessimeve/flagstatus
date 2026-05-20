@@ -5,13 +5,14 @@
   "scripts": {
     "start": "expo start",
     "web": "expo start --web",
-    "ios": "expo start --ios",
+    "ios": "expo run:ios",
     "build:web": "expo export --platform web --output-dir ../backend/public --clear"
   },
   "dependencies": {
     "@expo/metro-runtime": "^55.0.11",
     "@expo/vector-icons": "*",
     "expo": "*",
+    "expo-font": "~55.0.8",
     "expo-location": "*",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",

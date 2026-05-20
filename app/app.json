@@ -4,13 +4,23 @@
     "slug": "flagstatus",
     "version": "1.0.0",
     "orientation": "portrait",
-    "platforms": ["ios", "android", "web"],
-    "ios": { "supportsTablet": false },
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.anonymous.flagstatus"
+    },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#B22234"
       }
-    }
+    },
+    "plugins": [
+      "expo-font"
+    ]
   }
 }

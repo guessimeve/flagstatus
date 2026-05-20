@@ -24,6 +24,12 @@ npm run ios    # iOS simulator
 
 Backend runs on `http://localhost:3001`. There is no test suite yet.
 
+## Tool choice rules
+
+- **Checking URLs or HTTP status codes**: use a `curl` loop in Bash — never spawn an agent or use WebFetch for this. A shell loop over 30 URLs takes ~30 seconds and zero tokens.
+- **Before starting any research task touching 10+ items**: pause and ask "can a shell script do this?" If yes, write the script. Only use an agent if the task requires judgment or interpretation per item.
+- **Progress**: for any loop over more than 5 items, print `[i/total]` progress on each iteration.
+
 ## Architecture
 
 This is an npm workspaces monorepo with two packages: `backend/` and `app/`.
