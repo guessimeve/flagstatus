@@ -7,8 +7,7 @@ const prefersReducedMotion = () =>
     ? (window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ?? false)
     : false;
 import Svg, {
-  Rect, Circle, Line, G, Defs,
-  ClipPath,
+  Rect, Circle, Line, G, Defs, ClipPath,
 } from 'react-native-svg';
 
 const W = 180;
@@ -45,12 +44,12 @@ export default function FlagPole({ isHalf = false, scale = 1 }) {
 
   return (
     <View accessible={false} style={{ width: W * scale, height: H * scale }}>
-      {/* Static pole — pure hairline */}
-      <Svg width={W * scale} height={H * scale} viewBox={`0 0 ${W} ${H}`} style={{ position: 'absolute' }}>
+      {/* Static pole */}
+      <Svg width={W * scale} height={H * scale} viewBox={`0 0 ${W} ${H}`} style={{ position: 'absolute', filter: 'drop-shadow(1px 3px 5px rgba(0,0,0,0.22))' }}>
         <Line
           x1={POLE_X + 3} y1={POLE_TOP}
           x2={POLE_X + 3} y2={POLE_TOP + POLE_H}
-          stroke="#3A4E62" strokeWidth={3}
+          stroke="#464d53" strokeWidth={4.5}
         />
       </Svg>
 
@@ -58,9 +57,10 @@ export default function FlagPole({ isHalf = false, scale = 1 }) {
       <Animated.View
         style={{
           position: 'absolute',
-          left: (POLE_X + 5) * scale,
+          left: (POLE_X + 9) * scale,
           top: FLAG_FULL_Y * scale,
           transform: [{ translateY: scaledSlideY }],
+          filter: 'drop-shadow(1px 3px 7px rgba(0,0,0,0.22))',
         }}
       >
         <Svg width={FLAG_W * scale} height={FLAG_H * scale} viewBox={`0 0 ${FLAG_W} ${FLAG_H}`}>
@@ -68,7 +68,6 @@ export default function FlagPole({ isHalf = false, scale = 1 }) {
             <ClipPath id="flag-clip">
               <Rect x={0} y={0} width={FLAG_W} height={FLAG_H}/>
             </ClipPath>
-            {/* Canton clip — prevents stars bleeding into the red stripes */}
             <ClipPath id="canton-clip">
               <Rect x={0} y={0} width={CANTON_W} height={CANTON_H}/>
             </ClipPath>
@@ -81,12 +80,12 @@ export default function FlagPole({ isHalf = false, scale = 1 }) {
                 key={i}
                 x={0} y={i * (FLAG_H / 13)}
                 width={FLAG_W} height={FLAG_H / 13 + 0.5}
-                fill={i % 2 === 0 ? '#BF0A30' : '#FFFFFF'}
+                fill={i % 2 === 0 ? '#A8152E' : '#F5F2EE'}
               />
             ))}
 
             {/* Canton (union) — flat, no gradients */}
-            <Rect x={0} y={0} width={CANTON_W} height={CANTON_H} fill="#002868"/>
+            <Rect x={0} y={0} width={CANTON_W} height={CANTON_H} fill="#1B2E5A"/>
 
             {/* 50 stars — clipped to canton, slightly bolder dots */}
             <G fill="white" clipPath="url(#canton-clip)">
