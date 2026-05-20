@@ -53,7 +53,7 @@ Node.js ≥20 (ESM) + Fastify server. SQLite (`better-sqlite3`) stores all procl
 React Native + Expo (cross-platform: iOS, Android, Web). Metro is configured in `metro.config.js` to resolve `node_modules` from the monorepo root.
 
 - **`App.js`** — Main component. Detects user state via geolocation (Nominatim reverse-geocode on web, `expo-location` on mobile). Polls `/api/status`. Renders status cards and the next 3 upcoming statutory dates.
-- **`FlagPole.js`** — Animated SVG flag pole. Flag slides between full and half positions with a 1.4s cubic-bezier transition. Draws a complete 13-stripe flag with a 49-star canton.
+- **`FlagPole.js`** — Animated SVG flag pole. Flag slides between full and half positions with a 1.4s cubic-bezier transition. Draws a complete 13-stripe flag with a 50-star canton.
 
 ### Data Flow
 
