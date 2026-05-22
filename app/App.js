@@ -489,7 +489,7 @@ export default function App() {
     };
     node.addEventListener('scroll', onScroll, { passive: true });
     return () => node.removeEventListener('scroll', onScroll);
-  }, []);
+  }, [loading]);
 
   // Scroll arrow bounce loop
   useEffect(() => {
@@ -685,6 +685,47 @@ export default function App() {
             />
           </Animated.View>
 
+          {/* Scroll indicator — circular blur pill, fades on scroll */}
+          {Platform.OS === 'web' ? (
+            <Animated.View
+              pointerEvents="none"
+              style={{
+                position: 'fixed',
+                bottom: 20,
+                left: 0,
+                right: 0,
+                zIndex: 60,
+                alignItems: 'center',
+                opacity: scrollArrowOpacity,
+                transform: [{ translateY: scrollArrowBounce }],
+              }}
+            >
+              <View style={{
+                width: 40,
+                height: 40,
+                borderRadius: 20,
+                backgroundColor: 'rgba(255,255,255,0.12)',
+                backdropFilter: 'blur(10px)',
+                WebkitBackdropFilter: 'blur(10px)',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderWidth: 1,
+                borderColor: 'rgba(255,255,255,0.18)',
+              }}>
+                <Svg width={14} height={9} viewBox="0 0 14 9">
+                  <Polyline
+                    points="1,1 7,8 13,1"
+                    fill="none"
+                    stroke={isHalf ? C.textOnHalf : C.textOnFull}
+                    strokeWidth={1.5}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    opacity={0.7}
+                  />
+                </Svg>
+              </View>
+            </Animated.View>
+          ) : null}
 
         </View>
 
@@ -860,37 +901,6 @@ export default function App() {
         </View>
       </ScrollView>
 
-      {/* Fixed scroll indicator — viewport-anchored, fades on scroll */}
-      {Platform.OS === 'web' ? (
-        <Animated.View
-          pointerEvents="none"
-          style={{
-            position: 'fixed', bottom: 52, left: 0, right: 0, zIndex: 60,
-            alignItems: 'center',
-            opacity: scrollArrowOpacity,
-            transform: [{ translateY: scrollArrowBounce }],
-          }}
-        >
-          <Svg width={12} height={28} viewBox="0 0 12 28">
-            <Line
-              x1={6} y1={0} x2={6} y2={17}
-              stroke={isHalf ? C.accentOnHalf : C.accentOnFull}
-              strokeWidth={1.5}
-              strokeLinecap="round"
-              opacity={0.75}
-            />
-            <Polyline
-              points="1,13 6,21 11,13"
-              fill="none"
-              stroke={isHalf ? C.accentOnHalf : C.accentOnFull}
-              strokeWidth={1.5}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              opacity={0.75}
-            />
-          </Svg>
-        </Animated.View>
-      ) : null}
 
       {/* Fixed bottom blur strip — scroll-aware, dissolves before page bottom */}
       {Platform.OS === 'web' ? (
