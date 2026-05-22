@@ -23,7 +23,7 @@ import FlagPole from './FlagPole';
 const API_BASE = (Platform.OS !== 'web' || (typeof __DEV__ !== 'undefined' && __DEV__))
   ? 'http://localhost:3001'
   : '';
-const FEEDBACK_EMAIL = 'evequivive@icloud.com';
+const FEEDBACK_EMAIL = 'sweater.cramp4k@icloud.com';
 const KOFI_URL = 'https://ko-fi.com/eve78871';
 const LINKEDIN_URL = 'https://www.linkedin.com/in/evelyn-meyerhoefer';
 
