@@ -10,7 +10,10 @@
       "mcp__Claude_Preview__preview_inspect",
       "mcp__Claude_Preview__preview_resize",
       "Bash(curl -s *)",
-      "Bash(curl -sI *)"
+      "Bash(curl -sI *)",
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "mcp__Claude_in_Chrome__read_console_messages",
+      "mcp__Claude_in_Chrome__list_connected_browsers"
     ]
   }
 }

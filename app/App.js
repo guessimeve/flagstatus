@@ -685,48 +685,6 @@ export default function App() {
             />
           </Animated.View>
 
-          {/* Scroll indicator — circular blur pill, fades on scroll */}
-          {Platform.OS === 'web' ? (
-            <Animated.View
-              pointerEvents="none"
-              style={{
-                position: 'fixed',
-                bottom: 20,
-                left: 0,
-                right: 0,
-                zIndex: 60,
-                alignItems: 'center',
-                opacity: scrollArrowOpacity,
-                transform: [{ translateY: scrollArrowBounce }],
-              }}
-            >
-              <View style={{
-                width: 40,
-                height: 40,
-                borderRadius: 20,
-                backgroundColor: 'rgba(255,255,255,0.12)',
-                backdropFilter: 'blur(10px)',
-                WebkitBackdropFilter: 'blur(10px)',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderWidth: 1,
-                borderColor: 'rgba(255,255,255,0.18)',
-              }}>
-                <Svg width={14} height={9} viewBox="0 0 14 9">
-                  <Polyline
-                    points="1,1 7,8 13,1"
-                    fill="none"
-                    stroke={isHalf ? C.textOnHalf : C.textOnFull}
-                    strokeWidth={1.5}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    opacity={0.7}
-                  />
-                </Svg>
-              </View>
-            </Animated.View>
-          ) : null}
-
         </View>
 
         {/* ── CONTENT AREA ── */}
@@ -816,14 +774,14 @@ export default function App() {
                 accessibilityLabel="Support this project on Ko-fi"
                 accessibilityRole="link"
               >
-                <Text style={styles.footerCoffee}>◆ Support this project</Text>
+                <Text style={styles.footerLinkPrimary}>Support this project</Text>
               </TouchableOpacity>
               <View style={[styles.footerDivider, { backgroundColor: C.divider }]} />
               <TouchableOpacity
                 onPress={() => Linking.openURL(`mailto:${FEEDBACK_EMAIL}?subject=Flag%20Status%20Feedback`)}
                 accessibilityRole="link"
               >
-                <Text style={styles.footerFeedback}>Found a bug? Let me know →</Text>
+                <Text style={styles.footerLinkPrimary}>Found a bug? Let me know</Text>
               </TouchableOpacity>
             </View>
             <View style={styles.footerLinks}>
@@ -832,15 +790,15 @@ export default function App() {
                 accessibilityLabel="LinkedIn profile"
                 accessibilityRole="link"
               >
-                <Text style={styles.footerMeta}>LinkedIn</Text>
+                <Text style={styles.footerLink}>LinkedIn</Text>
               </TouchableOpacity>
               <View style={[styles.footerDivider, { backgroundColor: C.divider }]} />
               <TouchableOpacity onPress={() => setShowPrivacy(true)} accessibilityRole="button">
-                <Text style={styles.footerMeta}>Privacy Policy</Text>
+                <Text style={styles.footerLink}>Privacy Policy</Text>
               </TouchableOpacity>
               <View style={[styles.footerDivider, { backgroundColor: C.divider }]} />
               <TouchableOpacity onPress={() => setShowAbout(true)} accessibilityRole="button">
-                <Text style={styles.footerMeta}>About</Text>
+                <Text style={styles.footerLink}>About</Text>
               </TouchableOpacity>
             </View>
             <Text style={styles.footerCopyright}>© {new Date().getFullYear()} Evelyn Meyerhöfer</Text>
@@ -879,14 +837,14 @@ export default function App() {
                 <Text style={styles.infoModalTitle}>About</Text>
                 <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
                   <Text style={styles.infoModalBody}>
+                    <Text style={styles.infoModalBold}>How it works</Text>{'\n'}
+                    My server scrapes these sources every 30 minutes. Statutory dates are always applied automatically. Proclamations take priority over the default full-staff status.{'\n\n'}
                     Flag Status tracks whether the U.S. flag should be flown at full staff or half-staff, updated automatically from official government sources.{'\n\n'}
                     <Text style={styles.infoModalBold}>Sources</Text>{'\n'}
                     · White House press releases{'\n'}
                     · Federal Register proclamations{'\n'}
                     · Governor RSS feeds for 25 states{'\n'}
                     · Statutory dates under 4 U.S.C. § 7 (Memorial Day, Patriot Day, Pearl Harbor Day, Peace Officers Memorial Day){'\n\n'}
-                    <Text style={styles.infoModalBold}>How it works</Text>{'\n'}
-                    My server scrapes these sources every 30 minutes. Statutory dates are always applied automatically. Proclamations take priority over the default full-staff status.{'\n\n'}
                     Built by Evelyn Meyerhöfer.
                   </Text>
                 </ScrollView>
@@ -901,6 +859,48 @@ export default function App() {
         </View>
       </ScrollView>
 
+
+      {/* Scroll indicator — above blur strip, same stacking context */}
+      {Platform.OS === 'web' ? (
+        <Animated.View
+          pointerEvents="none"
+          style={{
+            position: 'fixed',
+            bottom: 20,
+            left: 0,
+            right: 0,
+            zIndex: 62,
+            alignItems: 'center',
+            opacity: scrollArrowOpacity,
+            transform: [{ translateY: scrollArrowBounce }],
+          }}
+        >
+          <View style={{
+            width: 40,
+            height: 40,
+            borderRadius: 20,
+            backgroundColor: 'rgba(255,255,255,0.12)',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderWidth: 1,
+            borderColor: 'rgba(255,255,255,0.18)',
+          }}>
+            <Svg width={14} height={9} viewBox="0 0 14 9">
+              <Polyline
+                points="1,1 7,8 13,1"
+                fill="none"
+                stroke={isHalf ? C.textOnHalf : C.textOnFull}
+                strokeWidth={1.5}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                opacity={0.7}
+              />
+            </Svg>
+          </View>
+        </Animated.View>
+      ) : null}
 
       {/* Fixed bottom blur strip — scroll-aware, dissolves before page bottom */}
       {Platform.OS === 'web' ? (
@@ -1214,28 +1214,23 @@ const styles = StyleSheet.create({
     height: 14,
     opacity: 0.6,
   },
-  footerFeedback: {
+  footerLinkPrimary: {
     fontFamily: BODY,
-    fontSize: 16,
+    fontSize: 15,
     color: C.muted,
+    opacity: 0.85,
   },
-  footerCoffee: {
-    fontFamily: BODY_600,
-    fontSize: 16,
-    fontWeight: '600',
-    color: C.muted,
-  },
-  footerMeta: {
+  footerLink: {
     fontFamily: BODY,
     fontSize: 13,
     color: C.muted,
-    opacity: 0.7,
+    opacity: 0.5,
   },
   footerCopyright: {
     fontFamily: BODY,
-    fontSize: 12,
+    fontSize: 13,
     color: C.muted,
-    opacity: 0.45,
+    opacity: 0.35,
     marginTop: 4,
     marginBottom: 16,
   },
