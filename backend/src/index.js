@@ -1,5 +1,6 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
+import rateLimit from '@fastify/rate-limit';
 import fastifyStatic from '@fastify/static';
 import cron from 'node-cron';
 import { existsSync } from 'fs';
@@ -14,6 +15,11 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const fastify = Fastify({ logger: true });
 
 await fastify.register(cors, { origin: '*' });
+await fastify.register(rateLimit, {
+  max: 60,        // 60 requests
+  timeWindow: '1 minute',
+  skipOnError: true,
+});
 
 fastify.get('/health', async () => ({ ok: true }));
 

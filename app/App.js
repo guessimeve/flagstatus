@@ -815,7 +815,7 @@ export default function App() {
                   <Text style={styles.infoModalBody}>
                     Flag Status does not collect, store, or share any personal information.{'\n\n'}
                     <Text style={styles.infoModalBold}>Location</Text>{'\n'}
-                    If you allow it, your device's location is used to automatically select your state. This happens entirely on your device — your coordinates are reverse-geocoded using the Nominatim service (openstreetmap.org) and are never sent to my server.{'\n\n'}
+                    If you allow it, your device's location is used to automatically select your state. Your coordinates are sent to the Nominatim service (openstreetmap.org) to determine your state — they are never sent to my server. You can also select your state manually without sharing your location.{'\n\n'}
                     <Text style={styles.infoModalBold}>Data</Text>{'\n'}
                     Flag status data is fetched from my server, which scrapes public government sources. No identifying information is included in these requests.{'\n\n'}
                     <Text style={styles.infoModalBold}>Analytics</Text>{'\n'}
