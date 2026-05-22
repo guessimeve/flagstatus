@@ -480,7 +480,7 @@ export default function App() {
     const onScroll = () => {
       const scrollTop = node.scrollTop;
       const remaining = node.scrollHeight - node.clientHeight - scrollTop;
-      blurOpacity.setValue(Math.min(1, Math.max(0, (remaining - 60) / 140)));
+      blurOpacity.setValue(Math.min(1, Math.max(0, (remaining - 120) / 180)));
       scrollArrowOpacity.setValue(Math.max(0, 1 - scrollTop / 60));
       // Parallax: shift background-position directly on the DOM node (no transform = no stacking context)
       const shift = `${scrollTop * 0.35}px`;
@@ -1045,7 +1045,7 @@ const styles = StyleSheet.create({
   // ── Content area ──
   content: {
     backgroundColor: C.bg,
-    paddingBottom: 180,
+    paddingBottom: 40,
   },
   contentInner: {
     maxWidth: 700,
