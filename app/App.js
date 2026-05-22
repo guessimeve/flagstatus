@@ -445,6 +445,11 @@ export default function App() {
 
   const effectiveState = pickedState ?? geoState;
 
+  // Derived early so useEffect dependency arrays can reference these without TDZ errors
+  const isHalf      = flagData?.effective === 'half';
+  const isNatHalf   = flagData?.national?.status === 'half';
+  const isStateHalf = flagData?.state?.status === 'half';
+
   const handleStateChange = (code) => {
     setPickedState(code);
     if (Platform.OS === 'web' && typeof window !== 'undefined') {
@@ -563,10 +568,6 @@ export default function App() {
       </SafeAreaView>
     );
   }
-
-  const isHalf      = flagData?.effective === 'half';
-  const isNatHalf   = flagData?.national?.status === 'half';
-  const isStateHalf = flagData?.state?.status === 'half';
 
   if (isHalf && flagData) {
     lastHalfDataRef.current = { national: flagData.national, state: flagData.state };
