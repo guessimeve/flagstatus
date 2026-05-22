@@ -17,7 +17,7 @@ import {
   SafeAreaView, ScrollView, StatusBar, Platform,
   TouchableOpacity, Linking, Modal, useWindowDimensions,
 } from 'react-native';
-import Svg, { Polyline } from 'react-native-svg';
+import Svg, { Line, Polyline } from 'react-native-svg';
 import FlagPole from './FlagPole';
 
 const API_BASE = (Platform.OS !== 'web' || (typeof __DEV__ !== 'undefined' && __DEV__))
@@ -457,6 +457,8 @@ export default function App() {
 
   // ── Headline animation — matches FlagPole exactly (300ms delay + 1400ms inOut cubic) ──
   const headlineAnim      = useRef(new Animated.Value(1)).current;
+  const cardAnim          = useRef(new Animated.Value(0)).current;
+  const lastHalfDataRef   = useRef(null);
   const blurOpacity       = useRef(new Animated.Value(1)).current;
   const scrollArrowOpacity = useRef(new Animated.Value(1)).current;
   const scrollArrowBounce  = useRef(new Animated.Value(0)).current;
@@ -512,6 +514,16 @@ export default function App() {
   }, [flagData?.effective]);
 
   useEffect(() => {
+    if (!flagData) return;
+    Animated.timing(cardAnim, {
+      toValue: isHalf ? 1 : 0,
+      duration: prefersReducedMotion() ? 0 : 550,
+      easing: Easing.inOut(Easing.cubic),
+      useNativeDriver: false,
+    }).start();
+  }, [isHalf, !!flagData]);
+
+  useEffect(() => {
     getStateCode().then(code => { setGeoState(code); setGeoLoading(false); });
   }, []);
 
@@ -556,6 +568,10 @@ export default function App() {
   const isNatHalf   = flagData?.national?.status === 'half';
   const isStateHalf = flagData?.state?.status === 'half';
 
+  if (isHalf && flagData) {
+    lastHalfDataRef.current = { national: flagData.national, state: flagData.state };
+  }
+
   const heroBg      = isHalf ? C.heroHalf    : C.heroFull;
   const textColor   = isHalf ? C.textOnHalf  : C.textOnFull;
   const mutedColor  = isHalf ? C.mutedOnHalf : C.mutedOnFull;
@@ -568,6 +584,10 @@ export default function App() {
   const headlineScale  = headlineAnim.interpolate({ inputRange: [0, 1], outputRange: [isHalf ? 1.05 : 0.95, 1] });
   const headlineY      = headlineAnim.interpolate({ inputRange: [0, 1], outputRange: [isHalf ? -10 : 10, 0] });
   const headlineOpacity = headlineAnim.interpolate({ inputRange: [0, 0.3, 1], outputRange: [0, 0.7, 1] });
+
+  const cardOpacity   = cardAnim;
+  const cardMaxHeight = cardAnim.interpolate({ inputRange: [0, 1], outputRange: [0, 600] });
+  const cardMarginTop = cardAnim.interpolate({ inputRange: [0, 1], outputRange: [0, 32] });
   const stateName   = effectiveState ? US_STATES.find(s => s.code === effectiveState)?.name : null;
   const upcoming    = upcomingDates();
   const updatedStr  = updatedAt
@@ -652,35 +672,18 @@ export default function App() {
             {dateline}{updatedStr ? `  ·  AS OF ${updatedStr}` : ''}
           </Text>
 
-          {isHalf ? (
-            <ReasonCard national={flagData?.national} state={flagData?.state} />
-          ) : null}
-
-          {/* Scroll indicator arrow — above the blur strip */}
-          <Animated.View
-            pointerEvents="none"
-            style={{
-              position: 'absolute',
-              bottom: 36,
-              left: 0,
-              right: 0,
-              alignItems: 'center',
-              opacity: scrollArrowOpacity,
-              transform: [{ translateY: scrollArrowBounce }],
-            }}
-          >
-            <Svg width={28} height={14} viewBox="0 0 28 14">
-              <Polyline
-                points="1,1 14,13 27,1"
-                fill="none"
-                stroke={textColor}
-                strokeWidth={2.2}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                opacity={0.5}
-              />
-            </Svg>
+          <Animated.View style={{
+            opacity: cardOpacity,
+            maxHeight: cardMaxHeight,
+            marginTop: cardMarginTop,
+            overflow: 'hidden',
+          }}>
+            <ReasonCard
+              national={lastHalfDataRef.current?.national}
+              state={lastHalfDataRef.current?.state}
+            />
           </Animated.View>
+
 
         </View>
 
@@ -855,6 +858,38 @@ export default function App() {
         </View>
         </View>
       </ScrollView>
+
+      {/* Fixed scroll indicator — viewport-anchored, fades on scroll */}
+      {Platform.OS === 'web' ? (
+        <Animated.View
+          pointerEvents="none"
+          style={{
+            position: 'fixed', bottom: 52, left: 0, right: 0, zIndex: 60,
+            alignItems: 'center',
+            opacity: scrollArrowOpacity,
+            transform: [{ translateY: scrollArrowBounce }],
+          }}
+        >
+          <Svg width={12} height={28} viewBox="0 0 12 28">
+            <Line
+              x1={6} y1={0} x2={6} y2={17}
+              stroke={isHalf ? C.accentOnHalf : C.accentOnFull}
+              strokeWidth={1.5}
+              strokeLinecap="round"
+              opacity={0.75}
+            />
+            <Polyline
+              points="1,13 6,21 11,13"
+              fill="none"
+              stroke={isHalf ? C.accentOnHalf : C.accentOnFull}
+              strokeWidth={1.5}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              opacity={0.75}
+            />
+          </Svg>
+        </Animated.View>
+      ) : null}
 
       {/* Fixed bottom blur strip — scroll-aware, dissolves before page bottom */}
       {Platform.OS === 'web' ? (
