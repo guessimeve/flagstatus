@@ -69,9 +69,16 @@ cron.schedule('*/30 * * * *', () => {
 
 // Serve the Expo web export if it exists (production)
 const publicDir = join(__dirname, '..', 'public');
-if (existsSync(publicDir)) {
+if (existsSync(join(publicDir, 'index.html'))) {
   await fastify.register(fastifyStatic, { root: publicDir });
   fastify.setNotFoundHandler((_req, reply) => reply.sendFile('index.html'));
+} else {
+  fastify.get('/', async (_req, reply) => {
+    reply.type('text/html').send(
+      '<!DOCTYPE html><html><head><title>Flag Status</title></head><body>' +
+      '<p>App is starting up. Please refresh in a moment.</p></body></html>'
+    );
+  });
 }
 
 const port = process.env.PORT ? Number(process.env.PORT) : 3001;
