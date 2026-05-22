@@ -466,7 +466,9 @@ export default function App() {
   const lastHalfDataRef   = useRef(null);
   const blurOpacity       = useRef(new Animated.Value(1)).current;
   const scrollArrowOpacity = useRef(new Animated.Value(1)).current;
-  const scrollArrowBounce  = useRef(new Animated.Value(0)).current;
+  const dot1Opacity        = useRef(new Animated.Value(0.15)).current;
+  const dot2Opacity        = useRef(new Animated.Value(0.15)).current;
+  const dot3Opacity        = useRef(new Animated.Value(0.15)).current;
   const paperTexRef = useRef(null);
   const grainTexRef = useRef(null);
   const scrollRef    = useRef(null);
@@ -491,13 +493,19 @@ export default function App() {
     return () => node.removeEventListener('scroll', onScroll);
   }, [loading]);
 
-  // Scroll arrow bounce loop
+  // Scroll dots cascade animation
   useEffect(() => {
-    if (prefersReducedMotion()) return;
+    const pulse = (val, delay) => Animated.sequence([
+      Animated.delay(delay),
+      Animated.timing(val, { toValue: 1,    duration: 320, easing: Easing.inOut(Easing.quad), useNativeDriver: false }),
+      Animated.timing(val, { toValue: 0.15, duration: 480, easing: Easing.inOut(Easing.quad), useNativeDriver: false }),
+    ]);
     const loop = Animated.loop(
-      Animated.sequence([
-        Animated.timing(scrollArrowBounce, { toValue: 7, duration: 750, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),
-        Animated.timing(scrollArrowBounce, { toValue: 0, duration: 750, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),
+      Animated.parallel([
+        pulse(dot1Opacity, 0),
+        pulse(dot2Opacity, 220),
+        pulse(dot3Opacity, 440),
+        Animated.delay(1700),
       ])
     );
     loop.start();
@@ -860,45 +868,33 @@ export default function App() {
       </ScrollView>
 
 
-      {/* Scroll indicator — above blur strip, same stacking context */}
+      {/* Scroll indicator — cascading dots, above blur strip */}
       {Platform.OS === 'web' ? (
         <Animated.View
           pointerEvents="none"
           style={{
             position: 'fixed',
-            bottom: 20,
+            bottom: 22,
             left: 0,
             right: 0,
             zIndex: 62,
             alignItems: 'center',
             opacity: scrollArrowOpacity,
-            transform: [{ translateY: scrollArrowBounce }],
           }}
         >
-          <View style={{
-            width: 40,
-            height: 40,
-            borderRadius: 20,
-            backgroundColor: 'rgba(255,255,255,0.12)',
-            backdropFilter: 'blur(10px)',
-            WebkitBackdropFilter: 'blur(10px)',
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderWidth: 1,
-            borderColor: 'rgba(255,255,255,0.18)',
-          }}>
-            <Svg width={14} height={9} viewBox="0 0 14 9">
-              <Polyline
-                points="1,1 7,8 13,1"
-                fill="none"
-                stroke={isHalf ? C.textOnHalf : C.textOnFull}
-                strokeWidth={1.5}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                opacity={0.7}
-              />
-            </Svg>
-          </View>
+          {[dot1Opacity, dot2Opacity, dot3Opacity].map((op, i) => (
+            <Animated.View
+              key={i}
+              style={{
+                width: 4,
+                height: 4,
+                borderRadius: 2,
+                backgroundColor: isHalf ? C.textOnHalf : C.textOnFull,
+                opacity: op,
+                marginBottom: i < 2 ? 5 : 0,
+              }}
+            />
+          ))}
         </Animated.View>
       ) : null}
 
