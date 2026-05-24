@@ -785,14 +785,7 @@ export default function App() {
               </TouchableOpacity>
             </View>
             <View style={styles.footerLinks}>
-              <TouchableOpacity
-                onPress={() => Linking.openURL(LINKEDIN_URL)}
-                accessibilityLabel="LinkedIn profile"
-                accessibilityRole="link"
-              >
-                <Text style={styles.footerLink}>LinkedIn</Text>
-              </TouchableOpacity>
-              <View style={[styles.footerDivider, { backgroundColor: C.divider }]} />
+              {/* LinkedIn hidden temporarily — re-add when ready */}
               <TouchableOpacity onPress={() => setShowPrivacy(true)} accessibilityRole="button">
                 <Text style={styles.footerLink}>Privacy Policy</Text>
               </TouchableOpacity>
