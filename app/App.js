@@ -477,17 +477,27 @@ export default function App() {
     let node;
     try { node = scrollRef.current?.getScrollableNode?.(); } catch {}
     if (!node) return;
+    // Hero is the first child of the scroll node
+    const heroEl = node.firstElementChild;
+    const heroFillsViewport = () =>
+      (heroEl?.getBoundingClientRect().bottom ?? 0) >= node.clientHeight - 30;
+
     const onScroll = () => {
       const scrollTop = node.scrollTop;
       const remaining = node.scrollHeight - node.clientHeight - scrollTop;
       blurOpacity.setValue(Math.min(1, Math.max(0, (remaining - 120) / 180)));
-      scrollArrowOpacity.setValue(Math.max(0, 1 - scrollTop / 60));
+      // Only show arrow while hero fills viewport (content not yet visible)
+      const arrowOpacity = heroFillsViewport()
+        ? Math.max(0, 1 - scrollTop / 60)
+        : 0;
+      scrollArrowOpacity.setValue(arrowOpacity);
       // Parallax: shift background-position directly on the DOM node (no transform = no stacking context)
       const shift = `${scrollTop * 0.35}px`;
       if (paperTexRef.current?.style) paperTexRef.current.style.backgroundPositionY = shift;
       if (grainTexRef.current?.style) grainTexRef.current.style.backgroundPositionY = shift;
     };
     node.addEventListener('scroll', onScroll, { passive: true });
+    onScroll(); // run immediately so initial opacity reflects actual layout
     return () => node.removeEventListener('scroll', onScroll);
   }, [loading]);
 
