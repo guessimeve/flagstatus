@@ -17,7 +17,7 @@ import {
   SafeAreaView, ScrollView, StatusBar, Platform,
   TouchableOpacity, Linking, Modal, useWindowDimensions,
 } from 'react-native';
-import Svg, { Line, Polyline } from 'react-native-svg';
+import Svg, { Line, Polyline, Polygon } from 'react-native-svg';
 import FlagPole from './FlagPole';
 
 const API_BASE = (Platform.OS !== 'web' || (typeof __DEV__ !== 'undefined' && __DEV__))
@@ -875,15 +875,11 @@ export default function App() {
             transform: [{ translateY: scrollArrowFloat }],
           }}
         >
-          <Svg width={18} height={11} viewBox="0 0 18 11">
-            <Polyline
-              points="1,1 9,10 17,1"
-              fill="none"
-              stroke={isHalf ? C.textOnHalf : C.textOnFull}
-              strokeWidth={1.5}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              opacity={0.5}
+          <Svg width={16} height={10} viewBox="0 0 16 10">
+            <Polygon
+              points="0,0 16,0 8,10"
+              fill={isHalf ? C.textOnHalf : C.textOnFull}
+              opacity={0.4}
             />
           </Svg>
         </Animated.View>
