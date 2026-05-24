@@ -466,9 +466,6 @@ export default function App() {
   const lastHalfDataRef   = useRef(null);
   const blurOpacity       = useRef(new Animated.Value(1)).current;
   const scrollArrowOpacity = useRef(new Animated.Value(1)).current;
-  const dot1Opacity        = useRef(new Animated.Value(0.15)).current;
-  const dot2Opacity        = useRef(new Animated.Value(0.15)).current;
-  const dot3Opacity        = useRef(new Animated.Value(0.15)).current;
   const paperTexRef = useRef(null);
   const grainTexRef = useRef(null);
   const scrollRef    = useRef(null);
@@ -493,23 +490,25 @@ export default function App() {
     return () => node.removeEventListener('scroll', onScroll);
   }, [loading]);
 
-  // Scroll dots cascade animation
+  // Inject CSS keyframes for scroll dots (web only)
   useEffect(() => {
-    const pulse = (val, delay) => Animated.sequence([
-      Animated.delay(delay),
-      Animated.timing(val, { toValue: 1,    duration: 320, easing: Easing.inOut(Easing.quad), useNativeDriver: false }),
-      Animated.timing(val, { toValue: 0.15, duration: 480, easing: Easing.inOut(Easing.quad), useNativeDriver: false }),
-    ]);
-    const loop = Animated.loop(
-      Animated.parallel([
-        pulse(dot1Opacity, 0),
-        pulse(dot2Opacity, 220),
-        pulse(dot3Opacity, 440),
-        Animated.delay(1700),
-      ])
-    );
-    loop.start();
-    return () => loop.stop();
+    if (Platform.OS !== 'web' || typeof document === 'undefined') return;
+    const id = 'scroll-dot-keyframes';
+    if (!document.getElementById(id)) {
+      const style = document.createElement('style');
+      style.id = id;
+      // 1.8s cycle: flash 0→1 at 16.7% (300ms), fade back to 0 by 38.9% (700ms), dark until repeat
+      style.textContent = `
+        @keyframes scrollDotPulse {
+          0%     { opacity: 0; }
+          16.7%  { opacity: 0.7; }
+          38.9%  { opacity: 0; }
+          100%   { opacity: 0; }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+    return () => document.getElementById('scroll-dot-keyframes')?.remove();
   }, []);
 
   useEffect(() => {
@@ -882,16 +881,21 @@ export default function App() {
             opacity: scrollArrowOpacity,
           }}
         >
-          {[dot1Opacity, dot2Opacity, dot3Opacity].map((op, i) => (
-            <Animated.View
+          {[0, 0.22, 0.44].map((delay, i) => (
+            <View
               key={i}
               style={{
-                width: 4,
-                height: 4,
-                borderRadius: 2,
+                width: 6,
+                height: 6,
+                borderRadius: 3,
                 backgroundColor: isHalf ? C.textOnHalf : C.textOnFull,
-                opacity: op,
-                marginBottom: i < 2 ? 5 : 0,
+                marginBottom: i < 2 ? 7 : 0,
+                animationName: 'scrollDotPulse',
+                animationDuration: '1.8s',
+                animationDelay: `${delay}s`,
+                animationTimingFunction: 'ease-in-out',
+                animationIterationCount: 'infinite',
+                animationFillMode: 'both',
               }}
             />
           ))}
