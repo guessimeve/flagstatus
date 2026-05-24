@@ -466,6 +466,7 @@ export default function App() {
   const lastHalfDataRef   = useRef(null);
   const blurOpacity       = useRef(new Animated.Value(1)).current;
   const scrollArrowOpacity = useRef(new Animated.Value(1)).current;
+  const scrollArrowFloat   = useRef(new Animated.Value(0)).current;
   const paperTexRef = useRef(null);
   const grainTexRef = useRef(null);
   const scrollRef    = useRef(null);
@@ -490,25 +491,17 @@ export default function App() {
     return () => node.removeEventListener('scroll', onScroll);
   }, [loading]);
 
-  // Inject CSS keyframes for scroll dots (web only)
+  // Scroll arrow float loop
   useEffect(() => {
-    if (Platform.OS !== 'web' || typeof document === 'undefined') return;
-    const id = 'scroll-dot-keyframes';
-    if (!document.getElementById(id)) {
-      const style = document.createElement('style');
-      style.id = id;
-      // 1.8s cycle: flash 0→1 at 16.7% (300ms), fade back to 0 by 38.9% (700ms), dark until repeat
-      style.textContent = `
-        @keyframes scrollDotPulse {
-          0%     { opacity: 0; }
-          16.7%  { opacity: 0.7; }
-          38.9%  { opacity: 0; }
-          100%   { opacity: 0; }
-        }
-      `;
-      document.head.appendChild(style);
-    }
-    return () => document.getElementById('scroll-dot-keyframes')?.remove();
+    if (prefersReducedMotion()) return;
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(scrollArrowFloat, { toValue: -6, duration: 900, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),
+        Animated.timing(scrollArrowFloat, { toValue: 0,  duration: 900, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),
+      ])
+    );
+    loop.start();
+    return () => loop.stop();
   }, []);
 
   useEffect(() => {
@@ -879,26 +872,20 @@ export default function App() {
             zIndex: 62,
             alignItems: 'center',
             opacity: scrollArrowOpacity,
+            transform: [{ translateY: scrollArrowFloat }],
           }}
         >
-          {[0, 0.22, 0.44].map((delay, i) => (
-            <View
-              key={i}
-              style={{
-                width: 6,
-                height: 6,
-                borderRadius: 3,
-                backgroundColor: isHalf ? C.textOnHalf : C.textOnFull,
-                marginBottom: i < 2 ? 7 : 0,
-                animationName: 'scrollDotPulse',
-                animationDuration: '1.8s',
-                animationDelay: `${delay}s`,
-                animationTimingFunction: 'ease-in-out',
-                animationIterationCount: 'infinite',
-                animationFillMode: 'both',
-              }}
+          <Svg width={18} height={11} viewBox="0 0 18 11">
+            <Polyline
+              points="1,1 9,10 17,1"
+              fill="none"
+              stroke={isHalf ? C.textOnHalf : C.textOnFull}
+              strokeWidth={1.5}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              opacity={0.5}
             />
-          ))}
+          </Svg>
         </Animated.View>
       ) : null}
 
