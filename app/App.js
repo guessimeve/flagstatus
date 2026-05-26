@@ -804,7 +804,9 @@ export default function App() {
                 <Text style={styles.footerLink}>About</Text>
               </TouchableOpacity>
             </View>
-            <Text style={styles.footerCopyright}>© {new Date().getFullYear()} Evelyn Meyerhöfer</Text>
+            <TouchableOpacity onPress={() => Linking.openURL(LINKEDIN_URL)} accessibilityRole="link">
+              <Text style={styles.footerCopyright}>© {new Date().getFullYear()} Evelyn Meyerhöfer</Text>
+            </TouchableOpacity>
           </View>
 
           {/* Privacy Policy modal */}
@@ -848,7 +850,13 @@ export default function App() {
                     · Federal Register proclamations{'\n'}
                     · Governor RSS feeds for 25 states{'\n'}
                     · Statutory dates under 4 U.S.C. § 7 (Memorial Day, Patriot Day, Pearl Harbor Day, Peace Officers Memorial Day){'\n\n'}
-                    Built by Evelyn Meyerhöfer.
+                    {'Built by '}
+                    <Text
+                      style={[styles.infoModalBold, { textDecorationLine: 'underline' }]}
+                      onPress={() => Linking.openURL(LINKEDIN_URL)}
+                      accessibilityRole="link"
+                    >Evelyn Meyerhöfer</Text>
+                    {'.'}
                   </Text>
                 </ScrollView>
                 <TouchableOpacity style={styles.infoModalClose} onPress={() => setShowAbout(false)}>
